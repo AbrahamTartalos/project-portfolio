@@ -1,0 +1,33 @@
+.flash-messages {
+    display: none; /* oculta el bloque por defecto */
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 1000;
+}
+
+.flash-message {
+    padding: 10px;
+    border-radius: 5px;
+    margin-bottom: 5px;
+    opacity: 0.9;
+    transition: opacity 0.3s ease;
+}
+
+.flash-message.success {
+    background-color: #4CAF50;
+    /* Verde para mensajes de éxito */
+    color: white;
+}
+
+.flash-message.error {
+    background-color: #f44336;
+    /* Rojo para mensajes de error */
+    color: white;
+}
+
+.flash-message.warning {
+    background-color: #ff9800;
+    /* Naranja para mensajes de advertencia */
+    color: white;
+}
