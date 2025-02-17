@@ -14,6 +14,7 @@
 
   /* gradient */
 
+  --primary-orange: #FFA500; /* Ajusta este valor según tu tono de naranja */
   --bg-gradient-onyx: linear-gradient(to bottom right,
       hsl(180, 100%, 20%) 3%,
       /* Verde azulado */
@@ -200,6 +201,7 @@ article {
   margin: 16px 0;
 }
 
+/* Estiliza el icono */
 .icon-box {
   position: relative;
   background: var(--border-gradient-onyx);
@@ -455,21 +457,44 @@ main {
   gap: 16px;
 }
 
-.contact-info {
-  max-width: calc(100% - 46px);
-  width: calc(100% - 46px);
+/* Asegura que el enlace del CV ocupe toda la sección */
+.contact-item a {
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+  width: 100%;
+  color: var(--white-2); /* Color blanco por defecto */
+  transition: color 0.3s ease;
 }
 
-.contact-title {
-  color: var(--light-gray-70);
-  font-size: var(--fs-8);
-  text-transform: uppercase;
-  margin-bottom: 2px;
+/* Efecto hover para resaltar el CV */
+.contact-item a:hover .icon-box {
+  background: var(--orange-yellow-crayola);
+  color: var(--dark-gray);
+  transition: background 0.3s ease, color 0.3s ease;
 }
-
-.contact-info :is(.contact-link, time, address) {
+/*---------------*/
+/* Color blanco por defecto y cambia a naranja al hacer clic */
+.contact-link,
+#phone-link,
+#cv-text {
   color: var(--white-2);
-  font-size: var(--fs-7);
+  transition: color 0.3s ease;
+}
+
+.contact-link:active,
+#phone-link:active,
+#cv-text:active {
+  color: var(--orange-yellow-crayola);
+}
+/*---------------*/
+/* Estilos específicos para el número de teléfono */
+#phone-link {
+  cursor: pointer;
+}
+
+#phone-link:hover {
+  text-decoration: underline;
 }
 
 .contact-info address {
@@ -488,12 +513,13 @@ main {
 .social-item .social-link {
   color: var(--light-gray-70);
   font-size: 18px;
+  transition: color 0.3s ease-in-out; /* Agregamos una transición suave */
 }
-
 
 .social-item .social-link:hover {
-  color: var(--light-gray);
+  color: var(--primary-orange); /* Usa la variable de tu paleta de colores */
 }
+
 
 
 
@@ -1606,8 +1632,15 @@ article.blog {
   }
 
   .contact-info {
-    max-width: calc(100% - 64px);
-    width: calc(100% - 64px);
+    max-width: calc(100% - 46px);
+    width: calc(100% - 46px);
+  }
+
+  .contact-title {
+    color: var(--light-gray-70); /* var(--white-2); */
+    font-size: var(--fs-8);
+    text-transform: uppercase;
+    margin-bottom: 2px;
   }
 
 
@@ -2202,8 +2235,10 @@ article.blog {
   }
 
   .contact-info :is(.contact-link, time, address) {
-    --fs-7: 14px;
-    font-weight: var(--fw-300);
+    /*--fs-7: 14px;
+    font-weight: var(--fw-300);*/
+    color: var(--white-2);
+    font-size: var(--fs-7);
   }
 
   .separator:last-of-type {

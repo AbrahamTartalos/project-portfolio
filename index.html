@@ -90,51 +90,55 @@ Feel free to edit the HTML and CSS to make it your own. You can also check the R
         <div class="separator"></div>
 
         <ul class="contacts-list">
-
           <li class="contact-item">
-
-            <div class="icon-box">
-              <ion-icon name="mail-outline"></ion-icon>
-            </div>
-
-            <div class="contact-info">
-              <p class="contact-title">Email</p>
-
-              <a href="mailto:abrahamrtartalos@gmail.com" class="contact-link">abrahamrtartalos@gmail.com</a>
-            </div>
-
+              <div class="icon-box">
+                <ion-icon name="document-text-outline"></ion-icon>
+              </div>
+              <a href="ruta_del_CV/CV_Abraham_Tartalos.pdf" class="contact-link" download>
+                <div class="contact-info">
+                  <p class="contact-title">CV</p>
+                  <span id="cv-text">Descargar CV aquí.</span>
+                </div>
+              </a>
           </li>
-
+        
           <li class="contact-item">
-
             <div class="icon-box">
               <ion-icon name="phone-portrait-outline"></ion-icon>
             </div>
-
             <div class="contact-info">
               <p class="contact-title">Phone</p>
-
-              <a href="tel:+12133522795" class="contact-link">+1 (213) 352-2795</a>
+              <a href="#" class="contact-link" id="phone-link">Ver número</a>
+              <script>
+                document.getElementById("phone-link").addEventListener("click", function () {
+                  this.textContent = "+1 (213) 352-2795";
+                });
+              </script>
             </div>
-
           </li>
-
         </ul>
+        
 
         <div class="separator"></div>
 
         <ul class="social-list">
           <li class="social-item">
-            <a href="#" class="social-link">
+            <a href="TU_LINKEDIN_URL" class="social-link" target="_blank">
               <ion-icon name="logo-linkedin"></ion-icon>
             </a>
           </li>
           <li class="social-item">
-            <a href="#" class="social-link">
+            <a href="TU_GITHUB_URL" class="social-link" target="_blank">
               <ion-icon name="logo-github"></ion-icon>
             </a>
           </li>
+          <li class="social-item">
+            <a href="mailto:TUCORREO@ejemplo.com" class="social-link">
+              <ion-icon name="mail-outline"></ion-icon>
+            </a>
+          </li>
         </ul>
+        
 
       </div>
 
