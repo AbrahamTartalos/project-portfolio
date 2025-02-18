@@ -960,52 +960,6 @@ main {
 }
 
 
-/**
- * skills 
- */
-
-
-/**
-.skills-title {
-  margin-bottom: 20px;
-}
-
-.skills-list {
-  padding: 20px;
-}
-
-
-.skills-item:not(:last-child) {
-  margin-bottom: 15px;
-}
-
-.skill .title-wrapper {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  margin-bottom: 8px;
-}
-
-.skill .title-wrapper data {
-  color: var(--light-gray);
-  font-size: var(--fs-7);
-  font-weight: var(--fw-300);
-}
-
-.skill-progress-bg {
-  background: var(--jet);
-  width: 100%;
-  height: 8px;
-  border-radius: 10px;
-}
-
-.skill-progress-fill {
-  background: var(--text-gradient-yellow);
-  height: 100%;
-  border-radius: inherit;
-}
-
-*/
 
 
 
@@ -1363,21 +1317,60 @@ main {
   margin-bottom: 20px;
 }
 
+/* Asegurar que los elementos dentro del formulario tengan separación */
 .input-wrapper {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 25px;
-  margin-bottom: 25px;
+  display: flex;
+  flex-direction: column; /* Mantiene los elementos en columna */
+  gap: 30px; /* Aumenta la separación entre campos */
+}
+
+/* Asegurar que los selects no estén pegados a otros elementos */
+.form-select,
+.form-input {
+  margin-bottom: 20px; /* Asegura separación uniforme */
 }
 
 .form-input {
   color: var(--white-2);
   font-size: var(--fs-6);
   font-weight: var(--fw-400);
-  padding: 13px 20px;
+  padding: 15px 20px;
   border: 1px solid var(--jet);
   border-radius: 14px;
   outline: none;
+  background: var(--onyx);
+  transition: all 0.3s ease-in-out;
+}
+
+/* Estilos para los elementos <select> */
+.form-select {
+  width: 100%;
+  padding: 15px 20px;
+  font-size: var(--fs-6);
+  color: var(--white-2);
+  background: var(--onyx);
+  border: 1px solid var(--jet);
+  border-radius: 14px;
+  outline: none;
+  appearance: none; /* Oculta el estilo predeterminado del navegador */
+  margin-bottom: 25px; /* Espaciado para evitar que se encimen */
+  transition: all 0.3s ease-in-out;
+}
+
+/* Efecto al pasar el cursor o seleccionar */
+.form-select:focus {
+  border-color: var(--orange-yellow-crayola);
+  background: var(--border-gradient-onyx);
+}
+
+/* Asegurar que los textos dentro de los select sean negros */
+.form-select option {
+  color: black;
+}
+
+/* Asegurar que los textos dentro de todos los select sean negros */
+.form-input option {
+  color: black;
 }
 
 .form-input::placeholder {
@@ -1386,15 +1379,13 @@ main {
 
 .form-input:focus {
   border-color: var(--orange-yellow-crayola);
+  background: var(--border-gradient-onyx);
 }
 
-textarea.form-input {
-  min-height: 100px;
-  height: 120px;
-  max-height: 200px;
-  resize: vertical;
-  margin-bottom: 25px;
-}
+/*textarea.form-input {
+  resize: none;
+  min-height: 120px;
+} */
 
 textarea.form-input::-webkit-resizer {
   display: none;
@@ -1413,13 +1404,20 @@ textarea.form-input::-webkit-resizer {
   justify-content: center;
   align-items: center;
   gap: 10px;
-  padding: 13px 20px;
+  padding: 15px 20px;
   border-radius: 14px;
+  margin-top: 10px;
   font-size: var(--fs-6);
   text-transform: capitalize;
   box-shadow: var(--shadow-3);
-  z-index: 1;
-  transition: var(--transition-1);
+  transition: all 0.3s ease-in-out;
+  cursor: pointer;
+}
+
+.form-btn:hover {
+  background: var(--orange-yellow-crayola);
+  color: var(--onyx);
+  box-shadow: 0px 0px 10px var(--orange-yellow-crayola);
 }
 
 .form-btn::before {
@@ -1843,8 +1841,9 @@ article.blog {
     padding: 15px 20px;
   }
 
+  /* Ajustar el textarea para alinearse mejor con los demás inputs */
   textarea.form-input {
-    margin-bottom: 30px;
+    min-height: 140px; /* Aumentar altura para mayor comodidad */
   }
 
   .form-btn {
