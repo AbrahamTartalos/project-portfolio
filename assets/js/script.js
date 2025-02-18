@@ -262,3 +262,6 @@ for (let i = 0; i < navigationLinks.length; i++) {
   });
 }
 
+function mostrarOtraCiudad(select) {
+  document.getElementById("otra_ciudad").style.display = select.value === "otra" ? "block" : "none";
+}
