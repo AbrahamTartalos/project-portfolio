@@ -1,11 +1,8 @@
 'use strict';
 
 
-
 // element toggle function
 const elementToggleFunc = function(elem) { elem.classList.toggle("active"); }
-
-
 
 // sidebar variables
 const sidebar = document.querySelector("[data-sidebar]");
@@ -34,20 +31,17 @@ const testimonialsModalFunc = function() {
 }
 
 // add click event to all modal items
-for (let i = 0; i < testimonialsItem.length; i++) {
-
-  testimonialsItem[i].addEventListener("click", function() {
-
+testimonialsItem.forEach(item => {
+  item.addEventListener("click", function() {
     modalImg.src = this.querySelector("[data-testimonials-avatar]").src;
     modalImg.alt = this.querySelector("[data-testimonials-avatar]").alt;
     modalTitle.innerHTML = this.querySelector("[data-testimonials-title]").innerHTML;
     modalText.innerHTML = this.querySelector("[data-testimonials-text]").innerHTML;
-
     testimonialsModalFunc();
-
   });
+});
 
-}
+
 
 // add click event to modal close button
 modalCloseBtn.addEventListener("click", testimonialsModalFunc);
@@ -58,7 +52,7 @@ overlay.addEventListener("click", testimonialsModalFunc);
 // custom select variables
 const select = document.querySelector("[data-select]");
 const selectItems = document.querySelectorAll("[data-select-item]");
-const selectValue = document.querySelector("[data-selecct-value]");
+const selectValue = document.querySelector("[data-select-value]");
 const filterBtn = document.querySelectorAll("[data-filter-btn]");
 
 select.addEventListener("click", function() { elementToggleFunc(this); });
@@ -130,38 +124,40 @@ for (let i = 0; i < formInputs.length; i++) {
     }
   });
 }
-// Event listener for form submission
-form.addEventListener("submit", async (event) => {
-  event.preventDefault(); // Prevent default form submission
-  // Get form data
+
+// ----------------____--------------------
+async function handleFormSubmit(event) {
+  event.preventDefault(); // Prevenir envío automático
+
   const formData = new FormData(form);
+
   try {
     const response = await fetch("/submit_form", {
       method: "POST",
       body: formData
     });
+
     if (response.ok) {
-      // Form submitted successfully
-      console.log("Form submitted successfully");
-      // Show success message to the user
-      alert("¡Mensaje enviado correctamente!");
-      // Optionally, reset the form
+      showMessage("¡Mensaje enviado correctamente!", "success");
       form.reset();
+      formBtn.setAttribute("disabled", ""); // Deshabilitar botón después del envío
     } else {
-      // Error submitting form
-      console.error("Error submitting form:", response.status);
-      // Get error message from server response (if available)
-      const errorData = await response.json(); // Assuming the server sends JSON with an error message
+      const errorData = await response.json();
       const errorMessage = errorData.error || "Hubo un error al enviar el mensaje.";
-      // Show error message to the user
-      alert(errorMessage);
+      showMessage(errorMessage, "error");
     }
   } catch (error) {
     console.error("Error:", error);
-    // Show error message to the user
-    alert("Hubo un error al enviar el mensaje. Intenta de nuevo más tarde.");
+    showMessage("Hubo un error al enviar el mensaje. Intenta de nuevo más tarde.", "error");
   }
-});
+}
+
+// ----------------____--------------------
+
+// Event listener for form submission
+form.addEventListener("submit", handleFormSubmit);
+
+
 // --------------------------------------------
 const languageToggle = document.getElementById("language-toggle");
 const languageButtons = document.querySelectorAll("[data-language-button]");
@@ -262,6 +258,20 @@ for (let i = 0; i < navigationLinks.length; i++) {
   });
 }
 
+// Esta funcion habilita la casilla para escribir 'otra ciudad' en el formulario
 function mostrarOtraCiudad(select) {
   document.getElementById("otra_ciudad").style.display = select.value === "otra" ? "block" : "none";
+}
+
+// Funcion para mostrar mensajes en la seccion del formulario
+function showMessage(message, type = "success") {
+  const messageBox = document.getElementById("form-message");
+  messageBox.textContent = message;
+  messageBox.className = `form-message ${type}`;
+  messageBox.style.display = "block";
+
+  // Ocultar el mensaje después de 5 segundos
+  setTimeout(() => {
+    messageBox.style.display = "none";
+  }, 5000);
 }
