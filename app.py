@@ -28,7 +28,7 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
 
 # Proteccion contra ataques XSS, clickjacking, etc.
-# Agregar una politica de seguridad personalizada.
+# Agregar una politica de seguridad personalizada o CSP.
 CSP = {
     'default-src': ["'self'"],
     'script-src': [

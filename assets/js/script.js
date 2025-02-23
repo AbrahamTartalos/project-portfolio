@@ -58,7 +58,7 @@ overlay.addEventListener("click", testimonialsModalFunc);
 // custom select variables
 const select = document.querySelector("[data-select]");
 const selectItems = document.querySelectorAll("[data-select-item]");
-const selectValue = document.querySelector("[data-selecct-value]");
+const selectValue = document.querySelector("[data-select-value]");
 const filterBtn = document.querySelectorAll("[data-filter-btn]");
 
 select.addEventListener("click", function() { elementToggleFunc(this); });
@@ -274,6 +274,17 @@ for (let i = 0; i < navigationLinks.length; i++) {
   });
 }
 
+// Permite mostrar una caja de texto parra escribir 'otra ciudad' en el formulario
 function mostrarOtraCiudad(select) {
   document.getElementById("otra_ciudad").style.display = select.value === "otra" ? "block" : "none";
 }
+
+// Elimina el enfoque en todas las partes que no sean una caja de texto
+document.addEventListener("click", function (event) {
+  const target = event.target;
+
+  // Si el elemento NO es un campo de texto ni un textarea, se le quita el foco
+  if (target.tagName !== "INPUT" && target.tagName !== "TEXTAREA") {
+    target.blur();
+  }
+});
