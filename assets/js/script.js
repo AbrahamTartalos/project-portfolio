@@ -198,27 +198,19 @@ async function getApiKey() {
 
 
 async function translateText(text, targetLanguage) {
-  // Obtener la clave API de DeepL desde la variable de entorno
-  const apiKey = await getApiKey(); // obtiene la Api Key de DeepL
-  if (!apiKey) {
-    console.error("La clave de API de DeepL no está definida.");
-    return text; // Devolver el texto original si la clave no está definida
-  }
-  const url = `https://api-free.deepl.com/v2/translate?auth_key=${apiKey}&text=${encodeURIComponent(text)}&target_lang=${targetLanguage}`;
-
   try {
-    const response = await fetch(url);
+    const response = await fetch("/translate", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ text: text, target_lang: targetLanguage })
+    });
+
     if (!response.ok) {
-      if (response.status === 429) {
-        throw new Error("Demasiadas solicitudes. Intenta de nuevo más tarde.");
-      } else if (response.status === 456) {
-        throw new Error("Error de autenticación. Verifica tu clave API.");
-      } else if (response.status === 500) {
-        throw new Error("Error del servidor. Intenta de nuevo más tarde.");
-      } else {
-        throw new Error(`Error al realizar la solicitud a la API: ${response.status}`);
-      }
+      throw new Error(`Error HTTP ${response.status}`);
     }
+
     const data = await response.json();
 
     if (data.translations && data.translations.length > 0) {
@@ -228,9 +220,11 @@ async function translateText(text, targetLanguage) {
     }
   } catch (error) {
     console.error("Error al traducir el texto:", error);
-    return text; // Devolver el texto original en caso de error
+    return text;
   }
 }
+
+
 function toggleLanguageButton(activeButton, inactiveButton) {
   activeButton.classList.add("active");
   inactiveButton.classList.remove("active");

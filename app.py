@@ -4,6 +4,7 @@ from flask_talisman import Talisman
 from dotenv import load_dotenv
 from flask_session import Session
 import os
+import requests
 import hmac
 from models import db, Ciudad, Contacto, Respuesta  # Importamos los modelos propios
 
@@ -131,7 +132,39 @@ def submit_form():
     #return render_template('index.html', form=form)
 
 
-# Define la ruta para enviar al front la API Key de DeepL
+# Ruta para manejar la tarduccion
+@app.route('/translate', methods=['POST'])
+def translate():
+    try:
+        data = request.json  # Recibir datos desde el frontend
+        text = data.get("text")
+        target_lang = data.get("target_lang")
+
+        if not text or not target_lang:
+            return jsonify({"error": "Faltan parámetros"}), 400
+
+        # Llamar a la API de DeepL desde el backend
+        deepl_api_key = os.getenv("DEEPL_KEY")
+        url = "https://api-free.deepl.com/v2/translate"
+        headers = {"Authorization": f"DeepL-Auth-Key {deepl_api_key}"}
+        params = {"text": text, "target_lang": target_lang}
+
+        response = requests.post(url, headers=headers, data=params)
+
+        if response.status_code == 429:
+            return jsonify({"error": "Demasiadas solicitudes. Intenta más tarde."}), 429
+        if response.status_code == 456:
+            return jsonify({"error": "Clave API de DeepL inválida."}), 401
+        if response.status_code != 200:
+            return jsonify({"error": "Error en la API de DeepL"}), 500
+
+        return jsonify(response.json())
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+# Define la ruta para enviar al front-end la API Key de DeepL
 @app.route('/get-api-key')
 def get_api_key():
     auth_token = request.headers.get("Authorization")
