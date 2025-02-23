@@ -10,7 +10,7 @@ from models import db, Ciudad, Contacto, Respuesta  # Importamos los modelos pro
 
 # Cargo las variables de entorno
 load_dotenv()
-SECRET_ADMIN_TOKEN = os.getenv("ADMIN_TOKEN", "") # Ayuda a protege contra ataques de timing attack en la comparación de tokens
+SECRET_ADMIN_TOKEN = os.getenv("SECRET_ADMIN_TOKEN", "") # Ayuda a protege contra ataques de timing attack en la comparación de tokens
 
 # Creación y configuración de la app Flask
 app = Flask(__name__, static_folder='assets', template_folder='.')
@@ -27,7 +27,44 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
 
 # Proteccion contra ataques XSS, clickjacking, etc.
-Talisman(app)
+# Agregar una politica de seguridad personalizada.
+CSP = {
+    'default-src': ["'self'"],
+    'script-src': [
+        "'self'",
+        "'unsafe-inline'",
+        'https://unpkg.com'
+    ],
+    'style-src': [
+        "'self'",
+        "'unsafe-inline'",
+        'https://fonts.googleapis.com'
+    ],
+    'font-src': [
+        "'self'",
+        'https://fonts.gstatic.com'
+    ],
+    'img-src': [
+        "'self'",
+        "data:",
+        "https://unpkg.com",
+        "https://www.google.com"
+    ],
+    'connect-src': [
+        "'self'",
+        'https://unpkg.com',
+        "http://127.0.0.1:5000", # En produccion borrar esta linea y dejar 'connect-src' como está
+        "https://api-free.deepl.com"
+    ],
+    'frame-src': [
+        "'self'",
+        "https://www.google.com"  # Permite cargar Google en iframes
+    ]
+}
+
+Talisman(app, content_security_policy=CSP)
+
+
 
 # Inicializar SQLAlchemy con la app
 db.init_app(app)
@@ -43,8 +80,10 @@ with app.app_context():
 # Define la ruta principal de la aplicación
 @app.route('/')
 def index():
-    ciudades = Ciudad.query.all()  # Obtener todas las ciudades
-    return render_template('index.html', ciudades=ciudades)
+    ciudades = Ciudad.query.all() # Obtener todas las ciudades
+    admin_token = SECRET_ADMIN_TOKEN  # Carga el token desde .env
+    return render_template('index.html', ciudades=ciudades, SECRET_ADMIN_TOKEN=admin_token)
+
 
 
 # Define la ruta para manejar la solicitud POST del formulario
@@ -96,10 +135,28 @@ def submit_form():
 @app.route('/get-api-key')
 def get_api_key():
     auth_token = request.headers.get("Authorization")
-    if not auth_token or not SECRET_ADMIN_TOKEN or not hmac.compare_digest(auth_token, SECRET_ADMIN_TOKEN):
-        abort(403, description="Acceso denegado")
+    print(f"Token recibido: {auth_token}")  # 👀 Ver qué token está llegando
+    print(f"Token esperado: {SECRET_ADMIN_TOKEN}")  # 👀 Ver qué token espera Flask
+    
+    if not auth_token:
+        return jsonify({'error': 'Falta el token de autorización'}), 403
+    
+    if not SECRET_ADMIN_TOKEN:
+        return jsonify({'error': 'SECRET_ADMIN_TOKEN no está configurado'}), 500
 
-    return jsonify({'apiKey': os.getenv('DEEPL_KEY')})
+    # Corregir comparando solo el token sin "Bearer "
+    token_limpio = auth_token.replace("Bearer ", "")
+    print(f"Token esperado: {token_limpio}")  
+
+    if not hmac.compare_digest(token_limpio, SECRET_ADMIN_TOKEN):
+        return jsonify({'error': 'Token incorrecto'}), 403
+
+    api_key = os.getenv('DEEPL_KEY')
+    if not api_key:
+        return jsonify({'error': 'DEEPL_KEY no está configurada'}), 500
+
+    return jsonify({'apiKey': api_key})
+
 
 
 if __name__ == '__main__':

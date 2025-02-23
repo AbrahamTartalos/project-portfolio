@@ -169,13 +169,31 @@ const languageButtons = document.querySelectorAll("[data-language-button]");
 // ---------Funcion para solicitar al backend la API KEY de DeepL---------
 async function getApiKey() {
   try {
-    const response = await fetch("/get-api-key"); // solicita la clave al Back
+    const token = document.querySelector('meta[name="admin-token"]').getAttribute("content"); // Obtiene el token de forma segura
+
+    const response = await fetch("/get-api-key", {
+      method: "GET",
+      headers: {
+        "Authorization": `Bearer ${token}`,
+        "Content-Type": "application/json"
+      },
+      mode: "cors",
+      credentials: "include"
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`Error HTTP ${response.status}: ${errorText}`);
+    }
+
     const data = await response.json();
     return data.apiKey;
   } catch (error) {
-    console.error('Error al obtener la clave de API:', error);
+    console.error("Error al obtener la clave de API:", error);
+    return null;
   }
 }
+
 //-------------
 
 

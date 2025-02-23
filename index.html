@@ -1,17 +1,10 @@
-<!--
-
-
-Hit RUN to see this project in action!
-
-Feel free to edit the HTML and CSS to make it your own. You can also check the README.md file to know more.
--->
-
 <!DOCTYPE html>
 <html lang="es">
 
 <head>
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="admin-token" content="{{ SECRET_ADMIN_TOKEN }}">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Portfolio | Abraham Tartalos</title>
 
@@ -32,6 +25,12 @@ Feel free to edit the HTML and CSS to make it your own. You can also check the R
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+  <!--
+    - ionicon link
+  -->
+  <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
+  <script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
 </head>
 
 <body>
@@ -110,7 +109,7 @@ Feel free to edit the HTML and CSS to make it your own. You can also check the R
               <p class="contact-title">Phone</p>
               <a href="#" class="contact-link" id="phone-link">Ver número</a>
               <script>
-                document.getElementById("phone-link").addEventListener("click", function () {
+                  document.getElementById("phone-link").addEventListener("click", function () {
                   this.textContent = "+1 (213) 352-2795";
                 });
               </script>
@@ -848,11 +847,7 @@ Feel free to edit the HTML and CSS to make it your own. You can also check the R
   -->
   <script src="{{ url_for('static', filename='js/script.js') }}"></script>
 
-  <!--
-    - ionicon link
-  -->
-  <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
-  <script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
+  
 
 </body>
 
