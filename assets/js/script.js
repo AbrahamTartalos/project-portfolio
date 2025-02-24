@@ -113,7 +113,7 @@ for (let i = 0; i < filterBtn.length; i++) {
 
 }
 
-// 1️⃣ Función para mostrar mensajes dinámicos
+//  Función para mostrar mensajes dinámicos
 function showMessage(message, type = "success") {
   const messageBox = document.getElementById("form-message");
   messageBox.textContent = message;
@@ -126,9 +126,14 @@ function showMessage(message, type = "success") {
   }, 5000);
 }
 
-// 2️⃣ Función para manejar el envío del formulario
+//  Función para manejar el envío del formulario
 async function handleFormSubmit(event) {
-  event.preventDefault(); // Prevenir envío automático
+  // Verificar si el elemento clickeado es un <select>, si es así, no prevenir el comportamiento predeterminado
+  if (event.target.tagName.toLowerCase() === "select") {
+    return; // Salimos de la función sin ejecutar preventDefault()
+  }
+
+  event.preventDefault(); // Prevenir el envío automático solo si no es un <select>
 
   const formData = new FormData(form);
 
@@ -169,10 +174,10 @@ for (let i = 0; i < formInputs.length; i++) {
   });
 }
 
-// 4️⃣ Evento para manejar el envío del formulario
+// Evento para manejar el envío del formulario
 form.addEventListener("submit", handleFormSubmit);
 
-// 5️⃣ Evento para habilitar/deshabilitar el botón en tiempo real
+// Evento para habilitar/deshabilitar el botón en tiempo real
 for (let i = 0; i < formInputs.length; i++) {
   formInputs[i].addEventListener("input", function() {
     formBtn.disabled = !form.checkValidity();
@@ -308,3 +313,18 @@ document.addEventListener("click", function (event) {
 });
 
 
+document.addEventListener("DOMContentLoaded", function () {
+  document.querySelectorAll("select").forEach((select) => {
+    select.addEventListener("focus", () => {
+      select.size = select.options.length; // Expande el select al hacer foco
+    });
+
+    select.addEventListener("blur", () => {
+      select.size = 1; // Vuelve a tamaño normal al perder el foco
+    });
+
+    select.addEventListener("change", () => {
+      select.size = 1; // Vuelve a tamaño normal al seleccionar una opción
+    });
+  });
+});
