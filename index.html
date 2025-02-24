@@ -787,13 +787,14 @@
         <section class="contact-form">
           <h3 class="h3 form-title">Contact Form</h3>
           <form action="{{ url_for('submit_form') }}" method="POST" class="form" data-form>
+            <input type="text" name="honeypot" style="display: none;"> <!-- Campo honeypot invisible - Para detectar bots -->
             
             <div class="input-wrapper">
-              <input type="text" name="name" class="form-input" placeholder="Full name" required data-form-input>
-              <input type="email" name="correo_electronico" class="form-input" placeholder="Email address" required data-form-input>
+              <input type="text" name="name" class="form-input" placeholder="Nombre completo" required data-form-input>
+              <input type="email" name="correo_electronico" class="form-input" placeholder="Dirección de email" required data-form-input>
             </div>
             
-            <input type="tel" name="numero_telefono" class="form-input" placeholder="Phone Number" required data-form-input>
+            <input type="tel" name="numero_telefono" class="form-input" placeholder="Número de celular" pattern="[0-9]{7,15}" required data-form-input>
             
             <select name="ciudad_id" id="ciudad" class="form-select" required onchange="mostrarOtraCiudad(this)">
               <option value="" disabled selected>Seleccione una ciudad</option>
@@ -805,7 +806,7 @@
             <input type="text" name="otra_ciudad" id="otra_ciudad" class="form-input" placeholder="Ingrese su ciudad" style="display: none;">
           
             
-            <textarea name="mensaje" class="form-input" placeholder="Your Message" required data-form-input></textarea>
+            <textarea name="mensaje" class="form-input" placeholder="Tu mensaje" required data-form-input></textarea>
             
             <select name="motivo_contacto" class="form-input" required>
               <option value="" disabled selected>Seleccione el motivo de contacto</option>
@@ -815,8 +816,11 @@
               <option value="other">Otro</option>
             </select>
             
-            <input type="url" name="linkedin_o_web" class="form-input" placeholder="LinkedIn or Website (optional)" data-form-input>
+            <input type="url" name="linkedin_o_web" class="form-input" placeholder="LinkedIn o Website (opcional)" data-form-input>
             
+            <!-- Área para mostrar mensajes de éxito o error -->
+            <div id="form-message" class="form-message"></div>
+
             <button class="form-btn" type="submit" disabled data-form-btn>
               <ion-icon name="paper-plane"></ion-icon>
               <span>Enviar Mensaje</span>

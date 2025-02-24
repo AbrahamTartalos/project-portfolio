@@ -3,9 +3,12 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_talisman import Talisman
 from dotenv import load_dotenv
 from flask_session import Session
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
 import os
 import requests
 import hmac
+import re
 from models import db, Ciudad, Contacto, Respuesta  # Importamos los modelos propios
 
 
@@ -21,6 +24,9 @@ app.config['TEMPLATES_AUTO_RELOAD'] = True
 app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
 Session(app)
+
+# Definir el limitador que restringe la cantidad de solicitudes que un usuario puede hacer
+limiter = Limiter(get_remote_address, app=app, default_limits=["3 per minute"])  # Limita a 3 envíos por minuto
 
 # Configuración de SQLAlchemy
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///data_formulario.db'
@@ -89,26 +95,46 @@ def index():
 
 # Define la ruta para manejar la solicitud POST del formulario
 @app.route('/submit_form', methods=['POST'])
+@limiter.limit("3 per minute")  # Aplica la limitación a esta ruta
 def submit_form():
     if request.method == "POST":
-        nombre = request.form.get("name")
-        correo_electronico = request.form.get("correo_electronico")
-        numero_telefono = request.form.get("numero_telefono")
-        ciudad_id = request.form.get("ciudad_id")
-        otra_ciudad = request.form.get("otra_ciudad")
-        mensaje = request.form.get("mensaje")
-        motivo_contacto = request.form.get("motivo_contacto")
-        linkedin_o_web = request.form.get("linkedin_o_web") or None  # Opcional
+        nombre = request.form.get("name", "").strip()
+        correo_electronico = request.form.get("correo_electronico", "").strip()
+        numero_telefono = request.form.get("numero_telefono", "").strip()
+        ciudad_id = request.form.get("ciudad_id", "").strip()
+        otra_ciudad = request.form.get("otra_ciudad", "").strip()
+        mensaje = request.form.get("mensaje", "").strip()
+        motivo_contacto = request.form.get("motivo_contacto", "").strip()
+        linkedin_o_web = request.form.get("linkedin_o_web", "").strip() or None  # Opcional
+        honeypot = request.form.get("honeypot", "").strip()  # Campo oculto anti-spam
 
-        # Verificar si se ingresó una ciudad personalizada
+        #  Protección contra bots
+        if honeypot:  # Si el honeypot contiene algo, es probable que sea un bot
+            flash("Error al enviar el mensaje. Intenta de nuevo más tarde.", "error")
+            return redirect(url_for("index"))
+
+        #  Validaciones
+        if not nombre or not correo_electronico or not mensaje:
+            flash("Todos los campos obligatorios deben completarse.", "error")
+            return redirect(url_for("index"))
+
+        email_regex = r"(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)"
+        if not re.match(email_regex, correo_electronico):
+            flash("Correo electrónico no válido.", "error")
+            return redirect(url_for("index"))
+
+        if numero_telefono and not numero_telefono.isdigit():
+            flash("El número de teléfono debe contener solo números.", "error")
+            return redirect(url_for("index"))
+
+        #  Verificar si se ingresó una ciudad personalizada
         if ciudad_id == "otra" and otra_ciudad:
             nueva_ciudad = Ciudad(nombre_ciudad=otra_ciudad)
             db.session.add(nueva_ciudad)
             db.session.commit()
             ciudad_id = nueva_ciudad.id  # Asignar ID de la nueva ciudad
 
-
-        # Crear objeto Contacto y guardar en la BD
+        #  Crear objeto Contacto y guardar en la BD
         try:
             nuevo_contacto = Contacto(
                 nombre=nombre,
@@ -129,7 +155,6 @@ def submit_form():
             print(f"Error en la BD: {e}")
 
     return redirect(url_for('index'))
-    #return render_template('index.html', form=form)
 
 
 # Ruta para manejar la tarduccion

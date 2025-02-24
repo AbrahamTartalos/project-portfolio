@@ -113,7 +113,45 @@ for (let i = 0; i < filterBtn.length; i++) {
 
 }
 
+// 1️⃣ Función para mostrar mensajes dinámicos
+function showMessage(message, type = "success") {
+  const messageBox = document.getElementById("form-message");
+  messageBox.textContent = message;
+  messageBox.className = `form-message ${type}`;
+  messageBox.style.display = "block";
 
+  // Ocultar el mensaje después de 5 segundos
+  setTimeout(() => {
+    messageBox.style.display = "none";
+  }, 5000);
+}
+
+// 2️⃣ Función para manejar el envío del formulario
+async function handleFormSubmit(event) {
+  event.preventDefault(); // Prevenir envío automático
+
+  const formData = new FormData(form);
+
+  try {
+    const response = await fetch("/submit_form", {
+      method: "POST",
+      body: formData
+    });
+
+    if (response.ok) {
+      showMessage("¡Mensaje enviado correctamente!", "success");
+      form.reset();
+      formBtn.setAttribute("disabled", ""); // Deshabilitar botón después del envío
+    } else {
+      const errorData = await response.json();
+      const errorMessage = errorData.error || "Hubo un error al enviar el mensaje.";
+      showMessage(errorMessage, "error");
+    }
+  } catch (error) {
+    console.error("Error:", error);
+    showMessage("Hubo un error al enviar el mensaje. Intenta de nuevo más tarde.", "error");
+  }
+}
 
 // contact form variables
 const form = document.querySelector("[data-form]");
@@ -130,38 +168,18 @@ for (let i = 0; i < formInputs.length; i++) {
     }
   });
 }
-// Event listener for form submission
-form.addEventListener("submit", async (event) => {
-  event.preventDefault(); // Prevent default form submission
-  // Get form data
-  const formData = new FormData(form);
-  try {
-    const response = await fetch("/submit_form", {
-      method: "POST",
-      body: formData
-    });
-    if (response.ok) {
-      // Form submitted successfully
-      console.log("Form submitted successfully");
-      // Show success message to the user
-      alert("¡Mensaje enviado correctamente!");
-      // Optionally, reset the form
-      form.reset();
-    } else {
-      // Error submitting form
-      console.error("Error submitting form:", response.status);
-      // Get error message from server response (if available)
-      const errorData = await response.json(); // Assuming the server sends JSON with an error message
-      const errorMessage = errorData.error || "Hubo un error al enviar el mensaje.";
-      // Show error message to the user
-      alert(errorMessage);
-    }
-  } catch (error) {
-    console.error("Error:", error);
-    // Show error message to the user
-    alert("Hubo un error al enviar el mensaje. Intenta de nuevo más tarde.");
-  }
-});
+
+// 4️⃣ Evento para manejar el envío del formulario
+form.addEventListener("submit", handleFormSubmit);
+
+// 5️⃣ Evento para habilitar/deshabilitar el botón en tiempo real
+for (let i = 0; i < formInputs.length; i++) {
+  formInputs[i].addEventListener("input", function() {
+    formBtn.disabled = !form.checkValidity();
+  });
+}
+
+
 // --------------------------------------------
 const languageToggle = document.getElementById("language-toggle");
 const languageButtons = document.querySelectorAll("[data-language-button]");
@@ -274,7 +292,7 @@ for (let i = 0; i < navigationLinks.length; i++) {
   });
 }
 
-// Permite mostrar una caja de texto parra escribir 'otra ciudad' en el formulario
+// Permite mostrar una caja de texto para escribir 'otra ciudad' en el formulario
 function mostrarOtraCiudad(select) {
   document.getElementById("otra_ciudad").style.display = select.value === "otra" ? "block" : "none";
 }
@@ -288,3 +306,5 @@ document.addEventListener("click", function (event) {
     target.blur();
   }
 });
+
+
