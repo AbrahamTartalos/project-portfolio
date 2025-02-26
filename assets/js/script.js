@@ -49,69 +49,66 @@ for (let i = 0; i < testimonialsItem.length; i++) {
 
 }
 
-// add click event to modal close button
+// agrega evento de clic al boton de cierre modal
 modalCloseBtn.addEventListener("click", testimonialsModalFunc);
 overlay.addEventListener("click", testimonialsModalFunc);
 
 
 
-// custom select variables
+// Variables de selección
 const select = document.querySelector("[data-select]");
 const selectItems = document.querySelectorAll("[data-select-item]");
 const selectValue = document.querySelector("[data-select-value]");
 const filterBtn = document.querySelectorAll("[data-filter-btn]");
-
-select.addEventListener("click", function() { elementToggleFunc(this); });
-
-// add event in all select items
-for (let i = 0; i < selectItems.length; i++) {
-  selectItems[i].addEventListener("click", function() {
-
-    let selectedValue = this.innerText.toLowerCase();
-    selectValue.innerText = this.innerText;
-    elementToggleFunc(select);
-    filterFunc(selectedValue);
-
-  });
-}
-
-// filter variables
 const filterItems = document.querySelectorAll("[data-filter-item]");
 
-const filterFunc = function(selectedValue) {
+// Evento para abrir/cerrar el menú de selección
+select.addEventListener("click", function () {
+  this.classList.toggle("active");
+});
 
-  for (let i = 0; i < filterItems.length; i++) {
+// Función para filtrar proyectos
+const filterFunc = function (selectedValue) {
 
-    if (selectedValue === "all") {
-      filterItems[i].classList.add("active");
-    } else if (selectedValue === filterItems[i].dataset.category) {
-      filterItems[i].classList.add("active");
+  filterItems.forEach(item => {
+    const category = item.dataset.category ? item.dataset.category.toLowerCase().trim() : "";
+
+    if (selectedValue === "all" || selectedValue === category) {
+      item.style.display = "block"; // Mostrar el proyecto
     } else {
-      filterItems[i].classList.remove("active");
+      item.style.display = "none"; // Ocultar el proyecto
     }
+  });
+};
 
-  }
+// Evento en los elementos del menú de selección
+selectItems.forEach(item => {
+  item.addEventListener("click", function () {
+    let selectedValue = this.innerText.toLowerCase().trim();
 
-}
+    selectValue.innerText = this.innerText;
+    select.classList.remove("active");
+    filterFunc(selectedValue);
+  });
+});
 
-// add event in all filter button items for large screen
+// Evento en los botones de filtro
 let lastClickedBtn = filterBtn[0];
 
-for (let i = 0; i < filterBtn.length; i++) {
+filterBtn.forEach(btn => {
+  btn.addEventListener("click", function () {
+    let selectedValue = this.innerText.toLowerCase().trim();
 
-  filterBtn[i].addEventListener("click", function() {
-
-    let selectedValue = this.innerText.toLowerCase();
     selectValue.innerText = this.innerText;
     filterFunc(selectedValue);
 
     lastClickedBtn.classList.remove("active");
     this.classList.add("active");
     lastClickedBtn = this;
-
   });
+});
 
-}
+
 
 //  Función para mostrar mensajes dinámicos
 function showMessage(message, type = "success") {
@@ -302,17 +299,9 @@ function mostrarOtraCiudad(select) {
   document.getElementById("otra_ciudad").style.display = select.value === "otra" ? "block" : "none";
 }
 
-// Elimina el enfoque en todas las partes que no sean una caja de texto
-document.addEventListener("click", function (event) {
-  const target = event.target;
-
-  // Si el elemento NO es un campo de texto ni un textarea, se le quita el foco
-  if (target.tagName !== "INPUT" && target.tagName !== "TEXTAREA") {
-    target.blur();
-  }
-});
 
 
+// Soluciona el problema del desplazamiento de las opcionse del 'select' del formulario
 document.addEventListener("DOMContentLoaded", function () {
   document.querySelectorAll("select").forEach((select) => {
     select.addEventListener("focus", () => {

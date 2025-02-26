@@ -2325,3 +2325,13 @@ textarea.form-input::-webkit-resizer {
   color: #721c24;
   border: 1px solid #f5c6cb;
 }
+
+* {
+  user-select: none; /* Evita la selección de texto en elementos no editables */
+  caret-color: transparent !important; /* Oculta el cursor de texto en general */
+}
+
+input, textarea {
+  user-select: text; /* Permite la selección de texto en campos de entrada */
+  caret-color: auto !important; /* Restaura el cursor de texto en inputs y textareas */
+}
