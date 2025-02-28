@@ -2335,3 +2335,11 @@ input, textarea {
   user-select: text; /* Permite la selección de texto en campos de entrada */
   caret-color: auto !important; /* Restaura el cursor de texto en inputs y textareas */
 }
+
+[data-page] {
+  display: none; /* Oculta todas las secciones por defecto */
+}
+
+[data-page].active {
+  display: block; /* Muestra solo la sección activa */
+}

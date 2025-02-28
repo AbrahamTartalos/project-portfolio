@@ -49,9 +49,7 @@ for (let i = 0; i < testimonialsItem.length; i++) {
 
 }
 
-// agrega evento de clic al boton de cierre modal
-modalCloseBtn.addEventListener("click", testimonialsModalFunc);
-overlay.addEventListener("click", testimonialsModalFunc);
+
 
 
 
@@ -73,7 +71,7 @@ const filterFunc = function (selectedValue) {
   filterItems.forEach(item => {
     const category = item.dataset.category ? item.dataset.category.toLowerCase().trim() : "";
 
-    if (selectedValue === "all" || selectedValue === category) {
+    if (selectedValue === "todos" || selectedValue === category) {
       item.style.display = "block"; // Mostrar el proyecto
     } else {
       item.style.display = "none"; // Ocultar el proyecto
@@ -266,33 +264,39 @@ languageToggle.addEventListener("click", async function() {
     // Traducir los elementos de la página al español
     document.querySelectorAll("h1, h2, h3, p, span, button").forEach(async element => {
       const translatedText = await translateText(element.textContent, "es");
-      //console.log("Texto traducido:", translatedText); 
       element.textContent = translatedText;
     });
   }
 });
 
-// page navigation variables
+// Variables de navegación
 const navigationLinks = document.querySelectorAll("[data-nav-link]");
 const pages = document.querySelectorAll("[data-page]");
 
-// add event to all nav link
-for (let i = 0; i < navigationLinks.length; i++) {
-  navigationLinks[i].addEventListener("click", function() {
+// Agregar evento a todos los enlaces de navegación
+navigationLinks.forEach((link) => {
+  link.addEventListener("click", function () {
+    const selectedPage = this.dataset.navLink; // Obtener el valor sin espacios
 
-    for (let i = 0; i < pages.length; i++) {
-      if (this.innerHTML.toLowerCase() === pages[i].dataset.page) {
-        pages[i].classList.add("active");
-        navigationLinks[i].classList.add("active");
-        window.scrollTo(0, 0);
+    pages.forEach((page) => {
+      if (page.dataset.page.toLowerCase() === selectedPage) {
+        page.classList.add("active");
       } else {
-        pages[i].classList.remove("active");
-        navigationLinks[i].classList.remove("active");
+        page.classList.remove("active");
       }
-    }
+    });
 
+    // Actualizar la clase "active" en los enlaces de navegación
+    navigationLinks.forEach((navLink) => {
+      navLink.classList.remove("active");
+    });
+    this.classList.add("active");
+
+    // Desplazar al inicio
+    window.scrollTo(0, 0);
   });
-}
+});
+
 
 // Permite mostrar una caja de texto para escribir 'otra ciudad' en el formulario
 function mostrarOtraCiudad(select) {

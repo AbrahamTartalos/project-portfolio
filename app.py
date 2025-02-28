@@ -152,7 +152,6 @@ def submit_form():
         except Exception as e:
             db.session.rollback()
             flash('Error al enviar el mensaje. Intenta de nuevo más tarde.', 'error')
-            print(f"Error en la BD: {e}")
 
     return redirect(url_for('index'))
 
@@ -193,8 +192,6 @@ def translate():
 @app.route('/get-api-key')
 def get_api_key():
     auth_token = request.headers.get("Authorization")
-    print(f"Token recibido: {auth_token}")  # 👀 Ver qué token está llegando
-    print(f"Token esperado: {SECRET_ADMIN_TOKEN}")  # 👀 Ver qué token espera Flask
     
     if not auth_token:
         return jsonify({'error': 'Falta el token de autorización'}), 403
@@ -203,8 +200,7 @@ def get_api_key():
         return jsonify({'error': 'SECRET_ADMIN_TOKEN no está configurado'}), 500
 
     # Corregir comparando solo el token sin "Bearer "
-    token_limpio = auth_token.replace("Bearer ", "")
-    print(f"Token esperado: {token_limpio}")  
+    token_limpio = auth_token.replace("Bearer ", "") 
 
     if not hmac.compare_digest(token_limpio, SECRET_ADMIN_TOKEN):
         return jsonify({'error': 'Token incorrecto'}), 403
