@@ -18,6 +18,7 @@ SECRET_ADMIN_TOKEN = os.getenv("SECRET_ADMIN_TOKEN", "") # Ayuda a protege contr
 
 # Creación y configuración de la app Flask
 app = Flask(__name__, static_folder='assets', template_folder='.')
+
 app.config['STATIC_URL_PATH'] = '/assets'
 app.config['TEMPLATES_AUTO_RELOAD'] = True
 # Configuración de Flask para mensajes flash
@@ -29,7 +30,9 @@ Session(app)
 limiter = Limiter(get_remote_address, app=app, default_limits=["3 per minute"])  # Limita a 3 envíos por minuto
 
 # Configuración de SQLAlchemy
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///data_formulario.db'
+# Usar una base de datos persistente en Render
+DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///instance/data_formulario.db")
+app.config['SQLALCHEMY_DATABASE_URI'] = DATABASE_URL
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
 
@@ -78,7 +81,7 @@ db.init_app(app)
 
 # Crear BD solo si no existe
 with app.app_context():
-    if not os.path.exists("data_formulario.db"):
+    if not os.path.exists("instance/data_formulario.db"):
         db.create_all()
 
 #------------------------------------
