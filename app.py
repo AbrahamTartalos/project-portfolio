@@ -25,13 +25,14 @@ app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
 Session(app)
 
-# Definir el limitador que restringe la cantidad de solicitudes que un usuario puede hacer
-limiter = Limiter(get_remote_address, app=app, default_limits=["3 per minute"])  # Limita a 3 envíos por minuto
-
 # Configuración de SQLAlchemy
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///data_formulario.db'
+DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///instance/data_formulario.db")
+app.config['SQLALCHEMY_DATABASE_URI'] = DATABASE_URL
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
+
+# Configuración de Flask-Limiter para limitar envios de formulario
+limiter = Limiter(get_remote_address, app=app, default_limits=["5 per hour"])  # Limita a 5 envíos por hora
 
 # Proteccion contra ataques XSS, clickjacking, etc.
 # Agregar una politica de seguridad personalizada o CSP.
@@ -214,4 +215,4 @@ def get_api_key():
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run()
