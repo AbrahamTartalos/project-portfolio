@@ -1,5 +1,6 @@
 from flask import Flask, jsonify, render_template, request, redirect, url_for, flash, abort
 from flask_sqlalchemy import SQLAlchemy
+from flask_migrate import Migrate
 from flask_talisman import Talisman
 from dotenv import load_dotenv
 from flask_session import Session
@@ -77,6 +78,9 @@ Talisman(app, content_security_policy=CSP)
 # Inicializar SQLAlchemy con la app
 db.init_app(app)
 
+# Agregar Flask-Migrate
+migrate = Migrate(app, db)
+
 # Crear BD solo si no existe
 with app.app_context():
     if not os.path.exists("data_formulario.db"):
@@ -96,7 +100,7 @@ def index():
 
 # Define la ruta para manejar la solicitud POST del formulario
 @app.route('/submit_form', methods=['POST'])
-@limiter.limit("3 per minute")  # Aplica la limitación a esta ruta
+@limiter.limit("5 per hour")  # Aplica la limitación a esta ruta
 def submit_form():
     if request.method == "POST":
         nombre = request.form.get("name", "").strip()
