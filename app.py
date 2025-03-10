@@ -32,8 +32,19 @@ app.config['SQLALCHEMY_DATABASE_URI'] = DATABASE_URL
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
 
+def get_real_ip():
+    """Obtiene la IP real del usuario considerando proxies en Render"""
+    forwarded_for = request.headers.get("X-Forwarded-For", "").split(",")[0].strip()
+    return forwarded_for if forwarded_for else request.remote_addr  # Si no hay proxy, usa remote_addr
+
+default_limit = os.getenv("LIMITER_DEFAULT", "5 per hour")  # Puede ajustarse en Render
+
 # Configuración de Flask-Limiter para limitar envios de formulario
-limiter = Limiter(get_remote_address, app=app, default_limits=["5 per hour"])  # Limita a 5 envíos por hora
+limiter = Limiter(
+    get_real_ip, 
+    app=app, 
+    default_limits=[default_limit] # Limita a 5 envíos por hora
+)  
 
 # Proteccion contra ataques XSS, clickjacking, etc.
 # Agregar una politica de seguridad personalizada o CSP.
@@ -100,7 +111,7 @@ def index():
 
 # Define la ruta para manejar la solicitud POST del formulario
 @app.route('/submit_form', methods=['POST'])
-@limiter.limit("5 per hour")  # Aplica la limitación a esta ruta
+@limiter.limit("2 per hour")  # Aplica la limitación a esta ruta
 def submit_form():
     if request.method == "POST":
         nombre = request.form.get("name", "").strip()
@@ -216,7 +227,9 @@ def get_api_key():
 
     return jsonify({'apiKey': api_key})
 
-
+@app.errorhandler(429)
+def ratelimit_handler(e):
+    return jsonify(error="Has alcanzado el límite de envíos. Intenta en una hora."), 429
 
 if __name__ == '__main__':
     app.run()
