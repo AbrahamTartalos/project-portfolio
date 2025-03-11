@@ -32,16 +32,21 @@ app.config['SQLALCHEMY_DATABASE_URI'] = DATABASE_URL
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
 
+# Obtiene la IP real de cada usuario
 def get_real_ip():
     """Obtiene la IP real del usuario considerando proxies en Render"""
     forwarded_for = request.headers.get("X-Forwarded-For", "").split(",")[0].strip()
     return forwarded_for if forwarded_for else request.remote_addr  # Si no hay proxy, usa remote_addr
+# Obtiene IP y Session de cada usuario para un control más preciso
+def get_user_identifier():
+    """Usa IP + sesión para un control más preciso"""
+    return f"{get_real_ip()}:{session.get('user_id', 'guest')}"
 
 default_limit = os.getenv("LIMITER_DEFAULT", "5 per hour")  # Puede ajustarse en Render
 
 # Configuración de Flask-Limiter para limitar envios de formulario
 limiter = Limiter(
-    get_real_ip, 
+    key_func=get_user_identifier, 
     app=app, 
     default_limits=[default_limit] # Limita a 5 envíos por hora
 )  
@@ -73,7 +78,7 @@ CSP = {
     'connect-src': [
         "'self'",
         'https://unpkg.com',
-        "http://127.0.0.1:5000", # En produccion borrar esta linea y dejar 'connect-src' como está
+        # "http://127.0.0.1:5000", # En produccion borrar esta linea y dejar 'connect-src' como está
         "https://api-free.deepl.com"
     ],
     'frame-src': [
@@ -111,7 +116,7 @@ def index():
 
 # Define la ruta para manejar la solicitud POST del formulario
 @app.route('/submit_form', methods=['POST'])
-@limiter.limit("2 per hour")  # Aplica la limitación a esta ruta
+@limiter.limit("5 per hour")  # Aplica la limitación a esta ruta
 def submit_form():
     if request.method == "POST":
         nombre = request.form.get("name", "").strip()
