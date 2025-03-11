@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, render_template, request, redirect, url_for, flash, abort
+from flask import Flask, jsonify, render_template, request, redirect, url_for, flash, abort, session
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_talisman import Talisman
@@ -6,6 +6,7 @@ from dotenv import load_dotenv
 from flask_session import Session
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
+import redis
 import os
 import requests
 import hmac
@@ -21,10 +22,20 @@ SECRET_ADMIN_TOKEN = os.getenv("SECRET_ADMIN_TOKEN", "") # Ayuda a protege contr
 app = Flask(__name__, static_folder='assets', template_folder='.')
 app.config['STATIC_URL_PATH'] = '/assets'
 app.config['TEMPLATES_AUTO_RELOAD'] = True
-# Configuración de Flask para mensajes flash
+# Configuración de Flask-Session
 app.config["SESSION_PERMANENT"] = False
-app.config["SESSION_TYPE"] = "filesystem"
+app.config["SESSION_USE_SIGNER"] = True  #  Protege cookies de sesión
+app.config["SESSION_COOKIE_SECURE"] = True  # Solo permite cookies en HTTPS
+
+# 🔹 Configuración de Redis para sesiones
+if os.getenv("FLASK_ENV") == "development":
+    app.config["SESSION_TYPE"] = "filesystem"
+else:
+    app.config["SESSION_TYPE"] = "redis"
+    app.config["SESSION_REDIS"] = redis.from_url(os.getenv("UPSTASH_REDIS_URL"))
+
 Session(app)
+
 
 # Configuración de SQLAlchemy
 DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///instance/data_formulario.db")
@@ -39,8 +50,13 @@ def get_real_ip():
     return forwarded_for if forwarded_for else request.remote_addr  # Si no hay proxy, usa remote_addr
 # Obtiene IP y Session de cada usuario para un control más preciso
 def get_user_identifier():
-    """Usa IP + sesión para un control más preciso"""
-    return f"{get_real_ip()}:{session.get('user_id', 'guest')}"
+    """Usa IP + sesión para un control más preciso y evita errores"""
+    try:
+        user_id = session.get("user_id", "guest") if "session" in globals() else "guest"
+    except Exception:
+        user_id = "guest"
+
+    return f"{get_real_ip()}:{user_id}"
 
 default_limit = os.getenv("LIMITER_DEFAULT", "5 per hour")  # Puede ajustarse en Render
 
