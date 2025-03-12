@@ -93,7 +93,7 @@
               <div class="icon-box">
                 <ion-icon name="document-text-outline"></ion-icon>
               </div>
-              <a href="ruta_del_CV/CV_Abraham_Tartalos.pdf" class="contact-link" download>
+              <a href="{{ url_for('static', filename='cv/tartalos-cv_es.pdf') }}" class="contact-link" download>
                 <div class="contact-info">
                   <p class="contact-title">CV</p>
                   <span id="cv-text">Descargar CV aquí.</span>
@@ -108,11 +108,6 @@
             <div class="contact-info">
               <p class="contact-title">Teléfono Celular</p>
               <a href="#" class="contact-link" id="phone-link">Ver número</a>
-              <script>
-                  document.getElementById("phone-link").addEventListener("click", function () {
-                  this.textContent = "+54 (387) 227-7116";
-                });
-              </script>
             </div>
           </li>
         </ul>
@@ -662,7 +657,18 @@
   -->
   <script src="{{ url_for('static', filename='js/script.js') }}"></script>
 
+  <script>
+    document.getElementById("phone-link").addEventListener("click", function (event) {
+      event.preventDefault(); // Evita que el enlace recargue la página
   
+      const phoneNumber = "+54 (387) 227-7116"; 
+      const whatsappURL = `https://wa.me/${phoneNumber.replace(/\D/g, '')}`; // Número en formato internacional sin espacios ni paréntesis
+  
+      this.textContent = phoneNumber; // Muestra el número
+      this.setAttribute("href", whatsappURL); // Convierte el enlace en un link a WhatsApp
+      this.setAttribute("target", "_blank"); // Abre WhatsApp en una nueva pestaña
+    });
+  </script>
 
 </body>
 
