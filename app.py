@@ -6,6 +6,7 @@ from dotenv import load_dotenv
 from flask_session import Session
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
+from sqlalchemy.pool import QueuePool
 import redis
 import os
 import requests
@@ -40,6 +41,12 @@ Session(app)
 # Configuración de SQLAlchemy
 DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///instance/data_formulario.db")
 app.config['SQLALCHEMY_DATABASE_URI'] = DATABASE_URL
+app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
+    "pool_size": 5,  # Máximo 5 conexiones simultáneas
+    "max_overflow": 10,  # Puede crear hasta 10 conexiones extra si es necesario
+    "pool_timeout": 30,  # Esperar hasta 30 segundos antes de rechazar la conexión
+    "pool_recycle": 1800,  # Cerrar conexiones después de 30 minutos de inactividad
+}
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
 
@@ -118,6 +125,12 @@ with app.app_context():
     if not os.path.exists("data_formulario.db"):
         db.create_all()
 
+
+# Cierra las conexiones después de cada solicitud para evitar saturación en Supabase
+@app.teardown_appcontext
+def shutdown_session(exception=None):
+    """Cierra la sesión de la base de datos al finalizar cada solicitud"""
+    db.session.remove()
 #------------------------------------
 
 
