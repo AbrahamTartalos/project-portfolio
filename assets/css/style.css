@@ -2305,7 +2305,7 @@ textarea.form-input::-webkit-resizer {
   line-height: 1.6;
 }
 
-/* Estilos para el area de mostrar mensajes de éxito o error */
+/* Estilos para el area de mostrar mensajes de éxito o error en el formulario de contacto*/
 
 .form-message {
   display: none;
@@ -2342,4 +2342,10 @@ input, textarea {
 
 [data-page].active {
   display: block; /* Muestra solo la sección activa */
+}
+
+
+/* Deja invisible la sección de 'Experiencia'*/
+.timeline.experience {
+  display: none;
 }
