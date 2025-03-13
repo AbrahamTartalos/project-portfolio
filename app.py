@@ -6,6 +6,7 @@ from dotenv import load_dotenv
 from flask_session import Session
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
+from flask_limiter.storage import RedisStorage
 from sqlalchemy.pool import QueuePool
 import redis
 import os
@@ -57,19 +58,24 @@ def get_real_ip():
     return forwarded_for if forwarded_for else request.remote_addr  # Si no hay proxy, usa remote_addr
 # Obtiene IP y Session de cada usuario para un control más preciso
 def get_user_identifier():
-    """Usa IP + sesión para un control más preciso y evita errores"""
+    """Evita que Flask-Limiter active conexiones innecesarias a la base de datos"""
     try:
-        user_id = session.get("user_id", "guest") if "session" in globals() else "guest"
+        if "session" in globals() and session.modified:  # Solo usa session si fue modificada
+            user_id = session.get("user_id", "guest")
+        else:
+            user_id = "guest"
     except Exception:
         user_id = "guest"
 
     return f"{get_real_ip()}:{user_id}"
 
+
 default_limit = os.getenv("LIMITER_DEFAULT", "5 per hour")  # Puede ajustarse en Render
 
 # Configuración de Flask-Limiter para limitar envios de formulario
 limiter = Limiter(
-    key_func=get_user_identifier, 
+    key_func=get_user_identifier,
+    storage_uri=os.getenv("UPSTASH_REDIS_URL"),  # Usa Redis en producción 
     app=app, 
     default_limits=[default_limit] # Limita a 5 envíos por hora
 )  
