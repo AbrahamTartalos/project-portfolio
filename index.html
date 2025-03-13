@@ -657,18 +657,7 @@
   -->
   <script src="{{ url_for('static', filename='js/script.js') }}"></script>
 
-  <script>
-    document.getElementById("phone-link").addEventListener("click", function (event) {
-      event.preventDefault(); // Evita que el enlace recargue la página
-  
-      const phoneNumber = "+54 (387) 227-7116"; 
-      const whatsappURL = `https://wa.me/${phoneNumber.replace(/\D/g, '')}`; // Número en formato internacional sin espacios ni paréntesis
-  
-      this.textContent = phoneNumber; // Muestra el número
-      this.setAttribute("href", whatsappURL); // Convierte el enlace en un link a WhatsApp
-      this.setAttribute("target", "_blank"); // Abre WhatsApp en una nueva pestaña
-    });
-  </script>
+
 
 </body>
 

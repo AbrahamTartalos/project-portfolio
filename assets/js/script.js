@@ -321,3 +321,20 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   });
 });
+
+
+// Muestra mi número de celular en la Sidebar
+
+document.addEventListener("DOMContentLoaded", function () {
+  const phoneLink = document.getElementById("phone-link");
+  
+  phoneLink.addEventListener("click", function (event) {
+      event.preventDefault();
+      this.textContent = "+54 (387) 227-7116";
+
+      // Espera un pequeño tiempo y luego cambia el href
+      setTimeout(() => {
+          this.href = "https://wa.me/543872277116"; // Redirige a WhatsApp
+      }, 200); // Se da un breve retraso para que el usuario vea el número antes de que el enlace cambie
+  });
+});
