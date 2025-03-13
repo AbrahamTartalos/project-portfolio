@@ -6,7 +6,7 @@ from dotenv import load_dotenv
 from flask_session import Session
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
-from flask_limiter.storage import RedisStorage
+from limits.storage import RedisStorage
 from sqlalchemy.pool import QueuePool
 import redis
 import os
