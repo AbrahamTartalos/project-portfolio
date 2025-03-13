@@ -76,8 +76,7 @@ default_limit = os.getenv("LIMITER_DEFAULT", "5 per hour")  # Puede ajustarse en
 limiter = Limiter(
     key_func=get_user_identifier,
     storage_uri=os.getenv("UPSTASH_REDIS_URL"),  # Usa Redis en producción 
-    app=app, 
-    default_limits=[default_limit] # Limita a 5 envíos por hora
+    app=app
 )  
 
 # Proteccion contra ataques XSS, clickjacking, etc.
@@ -151,7 +150,7 @@ def index():
 
 # Define la ruta para manejar la solicitud POST del formulario
 @app.route('/submit_form', methods=['POST'])
-@limiter.limit("5 per hour")  # Aplica la limitación a esta ruta
+@limiter.limit(default_limit)  # Aplica la limitación a esta ruta
 def submit_form():
     if request.method == "POST":
         nombre = request.form.get("name", "").strip()
