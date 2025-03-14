@@ -335,6 +335,7 @@ document.addEventListener("DOMContentLoaded", function () {
       // Espera un pequeño tiempo y luego cambia el href
       setTimeout(() => {
           this.href = "https://wa.me/543872277116"; // Redirige a WhatsApp
+          window.location.href = this.href; // Redirige automáticamente
       }, 200); // Se da un breve retraso para que el usuario vea el número antes de que el enlace cambie
   });
 });
