@@ -327,15 +327,19 @@ document.addEventListener("DOMContentLoaded", function () {
 
 document.addEventListener("DOMContentLoaded", function () {
   const phoneLink = document.getElementById("phone-link");
+  let clicked = false; // Variable para rastrear si el usuario ya hizo clic una vez
   
   phoneLink.addEventListener("click", function (event) {
       event.preventDefault();
-      this.textContent = "+54 (387) 227-7116";
-
-      // Espera un pequeño tiempo y luego cambia el href
-      setTimeout(() => {
-          this.href = "https://wa.me/543872277116"; // Redirige a WhatsApp
-          window.open(this.href, "_blank"); // abre el chat en una nueva pestaña
-      }, 200); // Se da un breve retraso para que el usuario vea el número antes de que el enlace cambie
+      
+      if (!clicked) {
+        // Primer clic: mostrar el número
+        this.textContent = "+54 (387) 227-7116";
+        this.href = "https://wa.me/543872277116"; // Prepara el enlace
+        clicked = true;
+    } else {
+        // Segundo clic: redirigir a WhatsApp
+        window.open(this.href, "_blank");
+    }
   });
 });
