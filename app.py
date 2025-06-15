@@ -41,14 +41,23 @@ Session(app)
 
 # Configuración de SQLAlchemy
 DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///instance/data_formulario.db")
+if DATABASE_URL and DATABASE_URL.startswith("postgres://"):
+    DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1) + "?sslmode=require"
 app.config['SQLALCHEMY_DATABASE_URI'] = DATABASE_URL
 app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
     "pool_size": 5,  # Máximo 5 conexiones simultáneas
     "max_overflow": 10,  # Puede crear hasta 10 conexiones extra si es necesario
     "pool_timeout": 30,  # Esperar hasta 30 segundos antes de rechazar la conexión
     "pool_recycle": 1800,  # Cerrar conexiones después de 30 minutos de inactividad
+    'connect_args': {
+        'sslmode': 'require',
+        'connect_timeout': 10  # Aumentar timeout
+    }
 }
+
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
 
 # Obtiene la IP real de cada usuario
@@ -124,11 +133,6 @@ db.init_app(app)
 
 # Agregar Flask-Migrate
 migrate = Migrate(app, db)
-
-# Crear BD solo si no existe
-with app.app_context():
-    if not os.path.exists("data_formulario.db"):
-        db.create_all()
 
 
 # Cierra las conexiones después de cada solicitud para evitar saturación en Supabase
@@ -271,4 +275,16 @@ def ratelimit_handler(e):
     return jsonify(error="Has alcanzado el límite de envíos. Intenta en una hora."), 429
 
 if __name__ == '__main__':
-    app.run()
+    # Entorno local detection
+    is_render = os.getenv('RENDER') is not None
+    is_production = os.getenv('FLASK_ENV') == 'production'
+    
+    if not is_render and not is_production:
+        with app.app_context():
+            db.create_all()
+    
+    app.run(
+        debug=not is_production,
+        host='0.0.0.0' if is_production else '127.0.0.1',
+        port=int(os.getenv('PORT', 5000))
+    )
