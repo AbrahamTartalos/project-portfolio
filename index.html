@@ -197,21 +197,19 @@
 
         <section class="about-text">
           <p>
-            👋 ¡Hola! Soy Abraham, un científico de datos en crecimiento con pasión por el análisis, la exploración de datos 
-            y el modelado predictivo. Me especializo en Python, machine learning y procesamiento de datos, transformando información 
-            en insights accionables para la toma de decisiones. Actualmente, me encuentro en búsqueda activa de oportunidades para 
-            aplicar mis habilidades en un entorno profesional y seguir creciendo en el campo de la ciencia de datos.
+            👋 ¡Hola! Soy Abraham, Científico de Datos especializado en Python y Machine Learning. 
+            Mi pasión es transformar datos complejos en herramientas predictivas de alto impacto.
           </p>
 
           <p>
-            📊 Desarrollo un modelo predictivo sobre la enfermedad de Alzheimer, analizando datos médicos de fuentes confiables como 
-            ANSI. Este proyecto me ha permitido aplicar técnicas avanzadas de machine learning y fortalecer mi capacidad para convertir 
-            datos complejos en conocimiento útil.
+            Actualmente, lidero un proyecto sobre la enfermedad de Alzheimer donde desarrollo un 
+            modelo multifacético que predice un score de riesgo compuesto, analiza su evolución 
+            temporal y realiza la estratificación de pacientes.
           </p>
 
           <p>
-            🚀 Curioso y meticuloso, disfruto enfrentando problemas desafiantes y creando soluciones innovadoras 
-            basadas en datos. Si tu empresa busca un perfil con mis habilidades o deseas colaborar en un proyecto, estaré encantado de conectar!
+            Busco activamente una oportunidad para aportar mis habilidades en un entorno profesional 
+            y enfrentar nuevos desafíos. ¡Conectemos!
           </p>
 
         </section>
@@ -534,12 +532,14 @@
                 <div class="project-info">
                   <h3 class="project-title">Predicción de Aterrizaje de Cohetes Falcon 9 de SpaceX</h3>
                   <p class="project-category">Ciencia de Datos</p>
-                  <p class="project-description">Implementé modelos de Machine Learning para predecir el aterrizaje del Falcon 9 de SpaceX, optimizando la precisión con datos reales. 🌍🚀 ¿Cómo lo logré? Descúbrelo aquí 👆</p>
+                  <p class="project-description">Implementé modelos de Machine Learning para predecir el aterrizaje del Falcon 9 de SpaceX, 
+                    optimizando la precisión con datos reales. 🌍🚀 ¿Cómo lo logré? Descúbrelo aquí 👆</p>
                   <ul class="project-skills">
                     <li class="skill">Python</li>
                     <li class="skill">SQL</li>
                     <li class="skill">Pandas</li>
                     <li class="skill">Matplotlib</li>
+                    <li class="skill">Folium</li>
                     <li class="skill">Scikit-learn</li>
                   </ul>
                 </div>
@@ -547,7 +547,7 @@
             </li>
           
             <li class="project-item active" data-filter-item data-category="aprendizaje automático">
-              <a href="#" target="_blank" rel="noopener noreferrer">
+              <a href="https://github.com/AbrahamTartalos/Alzheimer-Multimodal-Monitoring.git" target="_blank" rel="noopener noreferrer">
                 <figure class="project-img">
                   <div class="project-item-icon-box">
                     <ion-icon name="eye-outline"></ion-icon>
@@ -555,14 +555,17 @@
                   <img src="./assets/images/project-2.png" alt="ML Project" loading="lazy">
                 </figure>
                 <div class="project-info">
-                  <h3 class="project-title">Predicción del Riesgo de Alzheimer</h3>
+                  <h3 class="project-title">Monitorización y Predicción Multimodal del Alzheimer</h3>
                   <p class="project-category">Ciencia de Datos</p>
-                  <p class="project-description">Modelo de clasificación de imágenes usando redes neuronales convolucionales.</p>
+                  <p class="project-description">Desarrollo integral para predecir y monitorizar el riesgo de Alzheimer. Fusionamos datos multimodales 
+                    (biomarcadores, imágenes, genética y más) para modelos predictivos y series temporales innovadores. ¡Explora cómo transformamos datos 
+                    complejos en insights vitales para la salud! 🧠✨</p>
                   <ul class="project-skills">
                     <li class="skill">Python</li>
+                    <li class="skill">Pandas</li>
+                    <li class="skill">NumPy</li>
                     <li class="skill">Scikit-learn</li>
-                    <li class="skill">SnapML</li>
-                    <li class="skill">Plotly</li>
+                    <li class="skill">mlflow</li>
                     <li class="skill">Plotly Dash</li>
                   </ul>
                 </div>
@@ -598,7 +601,7 @@
         <section class="contact-form">
           <h3 class="h3 form-title">Formulario de Contacto</h3>
           <form action="{{ url_for('submit_form') }}" method="POST" class="form" data-form>
-            <input type="text" name="honeypot" style="display: none;"> <!-- Campo honeypot invisible - Para detectar bots -->
+            <input type="text" name="honeypot" style="display: none;"> <!-- Campo honeypot invisible  -->
             
             <div class="input-wrapper">
               <input type="text" name="name" class="form-input" placeholder="Nombre completo" required data-form-input>
