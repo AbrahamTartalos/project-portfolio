@@ -156,16 +156,22 @@ def index():
 @app.route('/submit_form', methods=['POST'])
 @limiter.limit(default_limit)  # Aplica la limitación a esta ruta
 def submit_form():
-    if request.method == "POST":
-        nombre = request.form.get("name", "").strip()
-        correo_electronico = request.form.get("correo_electronico", "").strip()
-        numero_telefono = request.form.get("numero_telefono", "").strip()
-        ciudad_id = request.form.get("ciudad_id", "").strip()
-        otra_ciudad = request.form.get("otra_ciudad", "").strip()
-        mensaje = request.form.get("mensaje", "").strip()
-        motivo_contacto = request.form.get("motivo_contacto", "").strip()
-        linkedin_o_web = request.form.get("linkedin_o_web", "").strip() or None  # Opcional
-        honeypot = request.form.get("honeypot", "").strip()  # Campo oculto anti-spam
+    try:
+        # Cambiar: Usar request.json en lugar de request.form
+        data = request.get_json()
+        if not data:
+            return jsonify({"status": "error", "message": "Datos no proporcionados"}), 400
+            
+        # Extraer datos del JSON
+        nombre = data.get("name", "").strip()
+        correo_electronico = data.get("correo_electronico", "").strip()
+        numero_telefono = data.get("numero_telefono", "").strip()
+        ciudad_id = data.get("ciudad_id", "").strip()
+        otra_ciudad = data.get("otra_ciudad", "").strip()
+        mensaje = data.get("mensaje", "").strip()
+        motivo_contacto = data.get("motivo_contacto", "").strip()
+        linkedin_o_web = data.get("linkedin_o_web", "").strip() or None
+        honeypot = data.get("honeypot", "").strip()
 
         #  Protección contra bots
         if honeypot:  # Si el honeypot contiene algo, es probable que sea un bot
@@ -187,32 +193,53 @@ def submit_form():
             return redirect(url_for("index"))
 
         #  Verificar si se ingresó una ciudad personalizada
-        if ciudad_id == "otra" and otra_ciudad:
-            nueva_ciudad = Ciudad(nombre_ciudad=otra_ciudad)
-            db.session.add(nueva_ciudad)
-            db.session.commit()
-            ciudad_id = nueva_ciudad.id  # Asignar ID de la nueva ciudad
+        if ciudad_id == "otra":
+            if otra_ciudad:
+                # Verificar si la ciudad ya existe
+                ciudad_existente = Ciudad.query.filter_by(nombre_ciudad=otra_ciudad).first()
+                if ciudad_existente:
+                    ciudad_id = ciudad_existente.id
+                else:
+                    nueva_ciudad = Ciudad(nombre_ciudad=otra_ciudad)
+                    db.session.add(nueva_ciudad)
+                    db.session.commit()
+                    ciudad_id = nueva_ciudad.id
+            else:
+                return jsonify({
+                    "status": "error",
+                    "message": "Debe especificar una ciudad"
+                }), 400
 
         #  Crear objeto Contacto y guardar en la BD
-        try:
-            nuevo_contacto = Contacto(
-                nombre=nombre,
-                correo_electronico=correo_electronico,
-                numero_telefono=numero_telefono,
-                ciudad_id=ciudad_id,
-                mensaje=mensaje,
-                motivo_contacto=motivo_contacto,
-                linkedin_o_web=linkedin_o_web
-            )
-            db.session.add(nuevo_contacto)
-            db.session.commit()
+        nuevo_contacto = Contacto(
+            nombre=nombre,
+            correo_electronico=correo_electronico,
+            numero_telefono=numero_telefono,
+            ciudad_id=ciudad_id,
+            mensaje=mensaje,
+            motivo_contacto=motivo_contacto,
+            linkedin_o_web=linkedin_o_web
+        )
+        
+        db.session.add(nuevo_contacto)
+        db.session.commit()
 
-            flash('¡Envío exitoso!', 'success')
-        except Exception as e:
-            db.session.rollback()
-            flash('Error al enviar el mensaje. Intenta de nuevo más tarde.', 'error')
+        # Cambiar: Devolver JSON en lugar de redirección
+        return jsonify({
+            "status": "success",
+            "message": "¡Envío exitoso!"
+        }), 200
 
-    return redirect(url_for('index'))
+    except Exception as e:
+        # Mejorar: Loggear el error completo
+        app.logger.error(f"Error en submit_form: {str(e)}", exc_info=True)
+        db.session.rollback()
+        
+        # Cambiar: Devolver error en JSON
+        return jsonify({
+            "status": "error",
+            "message": "Error interno del servidor"
+        }), 500
 
 
 # Ruta para manejar la tarduccion

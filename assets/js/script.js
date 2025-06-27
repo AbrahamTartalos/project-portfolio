@@ -123,33 +123,50 @@ function showMessage(message, type = "success") {
 
 //  Función para manejar el envío del formulario
 async function handleFormSubmit(event) {
-  // Verificar si el elemento clickeado es un <select>, si es así, no prevenir el comportamiento predeterminado
+  // Verificar si el elemento clickeado es un <select>
   if (event.target.tagName.toLowerCase() === "select") {
-    return; // Salimos de la función sin ejecutar preventDefault()
+    return;
   }
 
-  event.preventDefault(); // Prevenir el envío automático solo si no es un <select>
+  event.preventDefault();
 
-  const formData = new FormData(form);
+  // 1. Crear objeto con los datos del formulario
+  const formData = {
+    name: form.elements.name.value.trim(),
+    correo_electronico: form.elements.email.value.trim(),
+    numero_telefono: form.elements.phone.value.trim(),
+    ciudad_id: form.elements.city.value,
+    otra_ciudad: form.elements.otherCity ? form.elements.otherCity.value.trim() : '',
+    mensaje: form.elements.message.value.trim(),
+    motivo_contacto: form.elements.reason.value, // Asume que tienes un campo con name="reason"
+    linkedin_o_web: form.elements.linkedin ? form.elements.linkedin.value.trim() : '',
+    honeypot: form.elements.honeypot ? form.elements.honeypot.value.trim() : '' // Campo anti-spam
+  };
 
   try {
+    // 2. Enviar como JSON
     const response = await fetch("/submit_form", {
       method: "POST",
-      body: formData
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(formData)
     });
 
+    // 3. Manejar respuesta JSON
+    const responseData = await response.json();
+    
     if (response.ok) {
       showMessage("¡Mensaje enviado correctamente!", "success");
       form.reset();
-      formBtn.setAttribute("disabled", ""); // Deshabilitar botón después del envío
+      formBtn.setAttribute("disabled", "");
     } else {
-      const errorData = await response.json();
-      const errorMessage = errorData.error || "Hubo un error al enviar el mensaje.";
-      showMessage(errorMessage, "error");
+      // Usar el mensaje de error del backend
+      showMessage(responseData.message || "Hubo un error al enviar el mensaje.", "error");
     }
   } catch (error) {
-    console.error("Error:", error);
-    showMessage("Hubo un error al enviar el mensaje. Intenta de nuevo más tarde.", "error");
+    console.error("Error de red:", error);
+    showMessage("Error de conexión con el servidor", "error");
   }
 }
 
