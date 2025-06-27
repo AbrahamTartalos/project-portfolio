@@ -111,14 +111,19 @@ filterBtn.forEach(btn => {
 //  Función para mostrar mensajes dinámicos
 function showMessage(message, type = "success") {
   const messageBox = document.getElementById("form-message");
-  messageBox.textContent = message;
-  messageBox.className = `form-message ${type}`;
-  messageBox.style.display = "block";
+  if (messageBox) {
+    messageBox.textContent = message;
+    messageBox.className = `form-message ${type}`;
+    messageBox.style.display = "block";
 
-  // Ocultar el mensaje después de 5 segundos
-  setTimeout(() => {
-    messageBox.style.display = "none";
-  }, 5000);
+    // Ocultar el mensaje después de 5 segundos
+    setTimeout(() => {
+      messageBox.style.display = "none";
+    }, 5000);
+  } else {
+    // Fallback si no existe el elemento
+    alert(message);
+  }
 }
 
 //  Función para manejar el envío del formulario
@@ -130,28 +135,57 @@ async function handleFormSubmit(event) {
 
   event.preventDefault();
 
-  // 1. Crear objeto con los datos del formulario
-  const formData = {
-    name: form.elements.name.value.trim(),
-    correo_electronico: form.elements.email.value.trim(),
-    numero_telefono: form.elements.phone.value.trim(),
-    ciudad_id: form.elements.city.value,
-    otra_ciudad: form.elements.otherCity ? form.elements.otherCity.value.trim() : '',
-    mensaje: form.elements.message.value.trim(),
-    motivo_contacto: form.elements.reason.value, // Asume que tienes un campo con name="reason"
-    linkedin_o_web: form.elements.linkedin ? form.elements.linkedin.value.trim() : '',
-    honeypot: form.elements.honeypot ? form.elements.honeypot.value.trim() : '' // Campo anti-spam
-  };
+  // Verificar que el formulario existe
+  if (!form) {
+    console.error("Formulario no encontrado");
+    return;
+  }
 
   try {
+    // 1. Crear objeto con los datos del formulario - CORREGIR nombres de campos
+    const formData = {
+      name: form.elements.name ? form.elements.name.value.trim() : '',
+      correo_electronico: form.elements.email ? form.elements.email.value.trim() : '',
+      numero_telefono: form.elements.phone ? form.elements.phone.value.trim() : '',
+      ciudad_id: form.elements.city ? form.elements.city.value : '',
+      otra_ciudad: form.elements.otherCity ? form.elements.otherCity.value.trim() : '',
+      mensaje: form.elements.message ? form.elements.message.value.trim() : '',
+      motivo_contacto: form.elements.reason ? form.elements.reason.value : '',
+      linkedin_o_web: form.elements.linkedin ? form.elements.linkedin.value.trim() : '',
+      honeypot: form.elements.honeypot ? form.elements.honeypot.value.trim() : ''
+    };
+
+    // Debug: Mostrar datos que se van a enviar
+    console.log("Datos del formulario:", formData);
+
+    // Validación básica en el frontend
+    if (!formData.name || !formData.correo_electronico || !formData.mensaje) {
+      showMessage("Por favor completa todos los campos obligatorios", "error");
+      return;
+    }
+
+    // Deshabilitar el botón mientras se procesa
+    const submitButton = form.querySelector("[data-form-btn]");
+    if (submitButton) {
+      submitButton.disabled = true;
+      submitButton.textContent = "Enviando...";
+    }
+
     // 2. Enviar como JSON
     const response = await fetch("/submit_form", {
       method: "POST",
       headers: {
-        "Content-Type": "application/json"
+        "Content-Type": "application/json",
+        "Accept": "application/json"
       },
       body: JSON.stringify(formData)
     });
+
+    // Verificar si la respuesta es JSON
+    const contentType = response.headers.get("content-type");
+    if (!contentType || !contentType.includes("application/json")) {
+      throw new Error("El servidor no devolvió JSON válido");
+    }
 
     // 3. Manejar respuesta JSON
     const responseData = await response.json();
@@ -159,42 +193,53 @@ async function handleFormSubmit(event) {
     if (response.ok) {
       showMessage("¡Mensaje enviado correctamente!", "success");
       form.reset();
-      formBtn.setAttribute("disabled", "");
+      
+      // Ocultar campo "otra ciudad" si estaba visible
+      const otraCiudadDiv = document.getElementById("otra_ciudad");
+      if (otraCiudadDiv) {
+        otraCiudadDiv.style.display = "none";
+      }
     } else {
       // Usar el mensaje de error del backend
       showMessage(responseData.message || "Hubo un error al enviar el mensaje.", "error");
     }
   } catch (error) {
-    console.error("Error de red:", error);
-    showMessage("Error de conexión con el servidor", "error");
+    console.error("Error completo:", error);
+    showMessage("Error de conexión con el servidor. Por favor intenta nuevamente.", "error");
+  } finally {
+    // Rehabilitar el botón
+    const submitButton = form.querySelector("[data-form-btn]");
+    if (submitButton) {
+      submitButton.disabled = false;
+      submitButton.textContent = "Enviar mensaje";
+    }
   }
 }
 
-// contact form variables
-const form = document.querySelector("[data-form]");
-const formInputs = document.querySelectorAll("[data-form-input]");
-const formBtn = document.querySelector("[data-form-btn]");
-// add event to all form input field
-for (let i = 0; i < formInputs.length; i++) {
-  formInputs[i].addEventListener("input", function() {
-    // check form validation
-    if (form.checkValidity()) {
-      formBtn.removeAttribute("disabled");
-    } else {
-      formBtn.setAttribute("disabled", "");
-    }
-  });
-}
+// Inicialización del formulario
+document.addEventListener("DOMContentLoaded", function() {
+  // contact form variables
+  const form = document.querySelector("[data-form]");
+  const formInputs = document.querySelectorAll("[data-form-input]");
+  const formBtn = document.querySelector("[data-form-btn]");
 
-// Evento para manejar el envío del formulario
-form.addEventListener("submit", handleFormSubmit);
+  if (!form) {
+    console.warn("Formulario no encontrado en la página");
+    return;
+  }
 
-// Evento para habilitar/deshabilitar el botón en tiempo real
-for (let i = 0; i < formInputs.length; i++) {
-  formInputs[i].addEventListener("input", function() {
-    formBtn.disabled = !form.checkValidity();
-  });
-}
+  // Evento para manejar el envío del formulario
+  form.addEventListener("submit", handleFormSubmit);
+
+  // Evento para habilitar/deshabilitar el botón en tiempo real
+  if (formInputs.length > 0 && formBtn) {
+    formInputs.forEach(input => {
+      input.addEventListener("input", function() {
+        formBtn.disabled = !form.checkValidity();
+      });
+    });
+  }
+});
 
 
 // --------------------------------------------

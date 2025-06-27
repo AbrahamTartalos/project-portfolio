@@ -605,24 +605,24 @@
             
             <div class="input-wrapper">
               <input type="text" name="name" class="form-input" placeholder="Nombre completo" required data-form-input>
-              <input type="email" name="correo_electronico" class="form-input" placeholder="Dirección de email" required data-form-input>
+              <input type="email" name="email" class="form-input" placeholder="Dirección de email" required data-form-input>
             </div>
             
-            <input type="tel" name="numero_telefono" class="form-input" placeholder="Número de celular (de 7 a 15 dígitos)" pattern="[0-9]{7,15}" required data-form-input>
+            <input type="tel" name="phone" class="form-input" placeholder="Número de celular (de 7 a 15 dígitos)" pattern="[0-9]{7,15}" required data-form-input>
             
-            <select name="ciudad_id" id="ciudad" class="form-select" required onchange="mostrarOtraCiudad(this)">
+            <select name="city" id="ciudad" class="form-select" required onchange="mostrarOtraCiudad(this)">
               <option value="" disabled selected>Seleccione una ciudad</option>
                 {% for ciudad in ciudades %}
               <option value="{{ ciudad.id }}">{{ ciudad.nombre_ciudad }}</option>
                {% endfor %}
               <option value="otra">Otra (Especificar)</option>
             </select>
-            <input type="text" name="otra_ciudad" id="otra_ciudad" class="form-input" placeholder="Ingrese su ciudad" style="display: none;">
+            <input type="text" name="otherCity" id="otra_ciudad" class="form-input" placeholder="Ingrese su ciudad" style="display: none;">
           
             
-            <textarea name="mensaje" class="form-input" placeholder="Tu mensaje" required data-form-input></textarea>
+            <textarea name="message" class="form-input" placeholder="Tu mensaje" required data-form-input></textarea>
             
-            <select name="motivo_contacto" class="form-input" required>
+            <select name="reason" class="form-input" required>
               <option value="" disabled selected>Seleccione el motivo de contacto</option>
               <option value="job-proposal">Propuesta Laboral</option>
               <option value="collaboration">Colaboración</option>
@@ -630,7 +630,7 @@
               <option value="other">Otro</option>
             </select>
             
-            <input type="url" name="linkedin_o_web" class="form-input" placeholder="LinkedIn o Website (opcional)" data-form-input>
+            <input type="url" name="linkedin" class="form-input" placeholder="LinkedIn o Website (opcional)" data-form-input>
             
             <!-- Área para mostrar mensajes de éxito o error -->
             <div id="form-message" class="form-message"></div>

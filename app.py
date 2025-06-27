@@ -14,7 +14,10 @@ import requests
 import hmac
 import re
 from models import db, Ciudad, Contacto, Respuesta  # Importamos los modelos propios
+import logging
 
+# Configurar logging
+logging.basicConfig(level=logging.INFO)
 
 # Cargo las variables de entorno
 load_dotenv()
@@ -29,7 +32,7 @@ app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_USE_SIGNER"] = True  #  Protege cookies de sesión
 app.config["SESSION_COOKIE_SECURE"] = True  # Solo permite cookies en HTTPS
 
-# 🔹 Configuración de Redis para sesiones
+# Configuración de Redis para sesiones
 if os.getenv("FLASK_ENV") == "development":
     app.config["SESSION_TYPE"] = "filesystem"
 else:
@@ -156,6 +159,10 @@ def index():
 @app.route('/submit_form', methods=['POST'])
 @limiter.limit(default_limit)  # Aplica la limitación a esta ruta
 def submit_form():
+    # Debugging
+    app.logger.info(f"Content-Type: {request.content_type}")
+    app.logger.info(f"Raw data: {request.get_data()}")
+
     try:
         # Cambiar: Usar request.json en lugar de request.form
         data = request.get_json()
@@ -173,24 +180,23 @@ def submit_form():
         linkedin_o_web = data.get("linkedin_o_web", "").strip() or None
         honeypot = data.get("honeypot", "").strip()
 
+        # Log para debugging
+        app.logger.info(f"Datos recibidos: {data}")
+
         #  Protección contra bots
         if honeypot:  # Si el honeypot contiene algo, es probable que sea un bot
-            flash("Error al enviar el mensaje. Intenta de nuevo más tarde.", "error")
-            return redirect(url_for("index"))
+            return jsonify({"status": "error", "message": "Error al enviar el mensaje. Intenta de nuevo más tarde."}), 400
 
         #  Validaciones
         if not nombre or not correo_electronico or not mensaje:
-            flash("Todos los campos obligatorios deben completarse.", "error")
-            return redirect(url_for("index"))
+            return jsonify({"status": "error", "message": "Todos los campos obligatorios deben completarse."}), 400
 
         email_regex = r"(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)"
         if not re.match(email_regex, correo_electronico):
-            flash("Correo electrónico no válido.", "error")
-            return redirect(url_for("index"))
+            return jsonify({"status": "error", "message": "Correo electrónico no válido."}), 400
 
         if numero_telefono and not numero_telefono.isdigit():
-            flash("El número de teléfono debe contener solo números.", "error")
-            return redirect(url_for("index"))
+            return jsonify({"status": "error", "message": "El número de teléfono debe contener solo números."}), 400
 
         #  Verificar si se ingresó una ciudad personalizada
         if ciudad_id == "otra":
@@ -202,7 +208,7 @@ def submit_form():
                 else:
                     nueva_ciudad = Ciudad(nombre_ciudad=otra_ciudad)
                     db.session.add(nueva_ciudad)
-                    db.session.commit()
+                    db.session.flush()  # Usar flush en lugar de commit para obtener el ID
                     ciudad_id = nueva_ciudad.id
             else:
                 return jsonify({
@@ -224,6 +230,8 @@ def submit_form():
         db.session.add(nuevo_contacto)
         db.session.commit()
 
+        app.logger.info(f"Contacto guardado exitosamente: {nuevo_contacto.id}")
+
         # Cambiar: Devolver JSON en lugar de redirección
         return jsonify({
             "status": "success",
@@ -238,7 +246,7 @@ def submit_form():
         # Cambiar: Devolver error en JSON
         return jsonify({
             "status": "error",
-            "message": "Error interno del servidor"
+            "message": f"Error interno del servidor: {str(e)}"
         }), 500
 
 
