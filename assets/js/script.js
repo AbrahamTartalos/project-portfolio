@@ -1,11 +1,7 @@
 'use strict';
 
-
-
 // element toggle function
 const elementToggleFunc = function(elem) { elem.classList.toggle("active"); }
-
-
 
 // sidebar variables
 const sidebar = document.querySelector("[data-sidebar]");
@@ -13,8 +9,6 @@ const sidebarBtn = document.querySelector("[data-sidebar-btn]");
 
 // sidebar toggle functionality for mobile
 sidebarBtn.addEventListener("click", function() { elementToggleFunc(sidebar); });
-
-
 
 // testimonials variables
 const testimonialsItem = document.querySelectorAll("[data-testimonials-item]");
@@ -35,23 +29,15 @@ const testimonialsModalFunc = function() {
 
 // add click event to all modal items
 for (let i = 0; i < testimonialsItem.length; i++) {
-
   testimonialsItem[i].addEventListener("click", function() {
-
     modalImg.src = this.querySelector("[data-testimonials-avatar]").src;
     modalImg.alt = this.querySelector("[data-testimonials-avatar]").alt;
     modalTitle.innerHTML = this.querySelector("[data-testimonials-title]").innerHTML;
     modalText.innerHTML = this.querySelector("[data-testimonials-text]").innerHTML;
 
     testimonialsModalFunc();
-
   });
-
 }
-
-
-
-
 
 // Variables de selección
 const select = document.querySelector("[data-select]");
@@ -61,13 +47,14 @@ const filterBtn = document.querySelectorAll("[data-filter-btn]");
 const filterItems = document.querySelectorAll("[data-filter-item]");
 
 // Evento para abrir/cerrar el menú de selección
-select.addEventListener("click", function () {
-  this.classList.toggle("active");
-});
+if (select) {
+  select.addEventListener("click", function () {
+    this.classList.toggle("active");
+  });
+}
 
 // Función para filtrar proyectos
 const filterFunc = function (selectedValue) {
-
   filterItems.forEach(item => {
     const category = item.dataset.category ? item.dataset.category.toLowerCase().trim() : "";
 
@@ -106,8 +93,6 @@ filterBtn.forEach(btn => {
   });
 });
 
-
-
 //  Función para mostrar mensajes dinámicos
 function showMessage(message, type = "success") {
   const messageBox = document.getElementById("form-message");
@@ -126,7 +111,18 @@ function showMessage(message, type = "success") {
   }
 }
 
-//  Función para manejar el envío del formulario
+// Función de validación personalizada para URL opcional
+function validateOptionalUrl(url) {
+  if (!url || url.trim() === '') {
+    return true; // Campo vacío es válido (opcional)
+  }
+  
+  // Patrón más flexible para URLs
+  const urlPattern = /^(https?:\/\/)?([\w\-]+(\.[\w\-]+)+)([\w\-\.,@?^=%&:/~\+#]*[\w\-\@?^=%&/~\+#])?$/i;
+  return urlPattern.test(url.trim());
+}
+
+//  Función para manejar el envío del formulario - CORREGIDA
 async function handleFormSubmit(event) {
   // Verificar si el elemento clickeado es un <select>
   if (event.target.tagName.toLowerCase() === "select") {
@@ -135,6 +131,9 @@ async function handleFormSubmit(event) {
 
   event.preventDefault();
 
+  // Obtener el formulario desde el evento - CORRECCIÓN PRINCIPAL
+  const form = event.target;
+  
   // Verificar que el formulario existe
   if (!form) {
     console.error("Formulario no encontrado");
@@ -161,6 +160,12 @@ async function handleFormSubmit(event) {
     // Validación básica en el frontend
     if (!formData.name || !formData.correo_electronico || !formData.mensaje) {
       showMessage("Por favor completa todos los campos obligatorios", "error");
+      return;
+    }
+
+    // Validación del campo LinkedIn/Web (opcional pero debe ser URL válida si se llena)
+    if (formData.linkedin_o_web && !validateOptionalUrl(formData.linkedin_o_web)) {
+      showMessage("Por favor ingresa una URL válida en el campo LinkedIn/Web o déjalo vacío", "error");
       return;
     }
 
@@ -216,7 +221,7 @@ async function handleFormSubmit(event) {
   }
 }
 
-// Inicialización del formulario
+// Inicialización del formulario - CORREGIDA
 document.addEventListener("DOMContentLoaded", function() {
   // contact form variables
   const form = document.querySelector("[data-form]");
@@ -231,16 +236,48 @@ document.addEventListener("DOMContentLoaded", function() {
   // Evento para manejar el envío del formulario
   form.addEventListener("submit", handleFormSubmit);
 
+  // Remover validación HTML5 del campo LinkedIn para hacerlo verdaderamente opcional
+  const linkedinField = form.elements.linkedin;
+  if (linkedinField) {
+    linkedinField.removeAttribute('required');
+    linkedinField.removeAttribute('pattern');
+    // Agregar validación personalizada
+    linkedinField.addEventListener('input', function() {
+      const value = this.value.trim();
+      if (value === '' || validateOptionalUrl(value)) {
+        this.setCustomValidity('');
+      } else {
+        this.setCustomValidity('Por favor ingresa una URL válida o deja el campo vacío');
+      }
+    });
+  }
+
   // Evento para habilitar/deshabilitar el botón en tiempo real
   if (formInputs.length > 0 && formBtn) {
     formInputs.forEach(input => {
       input.addEventListener("input", function() {
-        formBtn.disabled = !form.checkValidity();
+        // Validación personalizada que no requiere LinkedIn
+        let isValid = true;
+        
+        // Verificar campos obligatorios
+        const requiredFields = form.querySelectorAll('input[required], select[required], textarea[required]');
+        requiredFields.forEach(field => {
+          if (!field.value.trim()) {
+            isValid = false;
+          }
+        });
+        
+        // Verificar LinkedIn si tiene contenido
+        const linkedinField = form.elements.linkedin;
+        if (linkedinField && linkedinField.value.trim() && !validateOptionalUrl(linkedinField.value)) {
+          isValid = false;
+        }
+        
+        formBtn.disabled = !isValid;
       });
     });
   }
 });
-
 
 // --------------------------------------------
 const languageToggle = document.getElementById("language-toggle");
@@ -249,7 +286,12 @@ const languageButtons = document.querySelectorAll("[data-language-button]");
 // ---------Funcion para solicitar al backend la API KEY de DeepL---------
 async function getApiKey() {
   try {
-    const token = document.querySelector('meta[name="admin-token"]').getAttribute("content"); // Obtiene el token de forma segura
+    const tokenMeta = document.querySelector('meta[name="admin-token"]');
+    if (!tokenMeta) {
+      throw new Error("Token meta tag no encontrado");
+    }
+    
+    const token = tokenMeta.getAttribute("content");
 
     const response = await fetch("/get-api-key", {
       method: "GET",
@@ -273,9 +315,6 @@ async function getApiKey() {
     return null;
   }
 }
-
-//-------------
-
 
 async function translateText(text, targetLanguage) {
   try {
@@ -304,32 +343,37 @@ async function translateText(text, targetLanguage) {
   }
 }
 
-
 function toggleLanguageButton(activeButton, inactiveButton) {
   activeButton.classList.add("active");
   inactiveButton.classList.remove("active");
 }
-languageToggle.addEventListener("click", async function() {
-  const activeButton = document.querySelector(".language-button.active");
-  const inactiveButton = document.querySelector(".language-button:not(.active)");
-  if (activeButton.textContent === "Español") {
-    toggleLanguageButton(inactiveButton, activeButton);
-    languageToggle.setAttribute("lang", "en"); // Cambiar el atributo lang del div 
-    // Traducir los elementos de la página al inglés
-    document.querySelectorAll("h1, h2, h3, p, span, button").forEach(async element => {
-      const translatedText = await translateText(element.textContent, "en");
-      element.textContent = translatedText;
-    });
-  } else {
-    toggleLanguageButton(inactiveButton, activeButton);
-    languageToggle.setAttribute("lang", "es"); // Cambiar el atributo lang del div 
-    // Traducir los elementos de la página al español
-    document.querySelectorAll("h1, h2, h3, p, span, button").forEach(async element => {
-      const translatedText = await translateText(element.textContent, "es");
-      element.textContent = translatedText;
-    });
-  }
-});
+
+if (languageToggle) {
+  languageToggle.addEventListener("click", async function() {
+    const activeButton = document.querySelector(".language-button.active");
+    const inactiveButton = document.querySelector(".language-button:not(.active)");
+    
+    if (activeButton && inactiveButton) {
+      if (activeButton.textContent === "Español") {
+        toggleLanguageButton(inactiveButton, activeButton);
+        languageToggle.setAttribute("lang", "en");
+        // Traducir los elementos de la página al inglés
+        document.querySelectorAll("h1, h2, h3, p, span, button").forEach(async element => {
+          const translatedText = await translateText(element.textContent, "en");
+          element.textContent = translatedText;
+        });
+      } else {
+        toggleLanguageButton(inactiveButton, activeButton);
+        languageToggle.setAttribute("lang", "es");
+        // Traducir los elementos de la página al español
+        document.querySelectorAll("h1, h2, h3, p, span, button").forEach(async element => {
+          const translatedText = await translateText(element.textContent, "es");
+          element.textContent = translatedText;
+        });
+      }
+    }
+  });
+}
 
 // Variables de navegación
 const navigationLinks = document.querySelectorAll("[data-nav-link]");
@@ -359,15 +403,15 @@ navigationLinks.forEach((link) => {
   });
 });
 
-
 // Permite mostrar una caja de texto para escribir 'otra ciudad' en el formulario
 function mostrarOtraCiudad(select) {
-  document.getElementById("otra_ciudad").style.display = select.value === "otra" ? "block" : "none";
+  const otraCiudadDiv = document.getElementById("otra_ciudad");
+  if (otraCiudadDiv) {
+    otraCiudadDiv.style.display = select.value === "otra" ? "block" : "none";
+  }
 }
 
-
-
-// Soluciona el problema del desplazamiento de las opcionse del 'select' del formulario
+// Soluciona el problema del desplazamiento de las opciones del 'select' del formulario
 document.addEventListener("DOMContentLoaded", function () {
   document.querySelectorAll("select").forEach((select) => {
     select.addEventListener("focus", () => {
@@ -384,24 +428,24 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 });
 
-
 // Muestra mi número de celular en la Sidebar
-
 document.addEventListener("DOMContentLoaded", function () {
   const phoneLink = document.getElementById("phone-link");
-  let clicked = false; // Variable para rastrear si el usuario ya hizo clic una vez
-  
-  phoneLink.addEventListener("click", function (event) {
-      event.preventDefault();
-      
-      if (!clicked) {
-        // Primer clic: mostrar el número
-        this.textContent = "+54 (387) 227-7116";
-        this.href = "https://wa.me/543872277116"; // Prepara el enlace
-        clicked = true;
-    } else {
-        // Segundo clic: redirigir a WhatsApp
-        window.open(this.href, "_blank");
-    }
-  });
+  if (phoneLink) {
+    let clicked = false; // Variable para rastrear si el usuario ya hizo clic una vez
+    
+    phoneLink.addEventListener("click", function (event) {
+        event.preventDefault();
+        
+        if (!clicked) {
+          // Primer clic: mostrar el número
+          this.textContent = "+54 (387) 227-7116";
+          this.href = "https://wa.me/543872277116"; // Prepara el enlace
+          clicked = true;
+      } else {
+          // Segundo clic: redirigir a WhatsApp
+          window.open(this.href, "_blank");
+      }
+    });
+  }
 });
