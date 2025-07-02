@@ -18,7 +18,7 @@ class Contacto(db.Model):
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     nombre = db.Column(db.String(100), nullable=False)
-    correo_electronico = db.Column(db.String(120), nullable=False, unique=True)
+    correo_electronico = db.Column(db.String(120), nullable=False, unique=False)
     numero_telefono = db.Column(db.String(20), nullable=True)
     ciudad_id = db.Column(db.Integer, db.ForeignKey('ciudades.id'), nullable=True)
     mensaje = db.Column(db.Text, nullable=False)
