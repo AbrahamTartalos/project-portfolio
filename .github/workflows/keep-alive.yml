@@ -1,20 +1,27 @@
 # .github/workflows/keep-alive.yml
 name: Mantener Upstash Alive
 
-# Ejecutar cada día a las 03:00 UTC (las 00:00 en Argentina)
+# Ejecutar cada día a las 03:00 UTC (00:00 en Argentina)
 on:
   schedule:
     - cron: '0 3 * * *'
 
 jobs:
-  ping_upstash:
+  keepalive_upstash:
     runs-on: ubuntu-latest
     steps:
-      - name: Enviar PING a Upstash
+      - name: Enviar comando GET a Upstash
         run: |
-          curl -s -X POST ${{ secrets.UPSTASH_REST_URL }}/ \
+          # Opcional: crear la clave si no existe
+          curl -s -X POST ${{ secrets.UPSTASH_REST_URL }} \
             -H "Authorization: Bearer ${{ secrets.UPSTASH_REST_TOKEN }}" \
-            -d '["PING"]' \
+            -d '["SET","keepalive","1"]' \
+            -o /dev/null
+
+          # Hacer GET sobre la clave "keepalive"
+          curl -s -X POST ${{ secrets.UPSTASH_REST_URL }} \
+            -H "Authorization: Bearer ${{ secrets.UPSTASH_REST_TOKEN }}" \
+            -d '["GET","keepalive"]' \
             -o /dev/null \
-            && echo "✅ PONG recibido" \
-            || echo "❌ Error al hacer PING"
+            && echo "✅ GET ejecutado correctamente" \
+            || echo "❌ Error al ejecutar GET"
