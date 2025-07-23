@@ -1,18 +1,15 @@
 name: Prevent Supabase Pause
-# Se ejecuta lunes y jueves a las 9:00 UTC,
-# y también manualmente vía botón “Run workflow”.
+
+# Ejecutar cada día a las 03:00 UTC (00:00 ART)
 on:
   schedule:
-    - cron: '0 1 * * 1,4'
+    - cron: '0 3 * * *'
   workflow_dispatch:
 
 jobs:
   keep-alive:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
-
       - name: Setup Node.js 18
         uses: actions/setup-node@v3
         with:
@@ -21,24 +18,22 @@ jobs:
       - name: Install supabase client
         run: npm install @supabase/supabase-js --no-audit --no-fund
 
-      - name: Ping Supabase
+      - name: Ping Supabase (SELECT 1)
         env:
-          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-          SUPABASE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          SUPABASE_URL:   ${{ secrets.SUPABASE_URL }}
+          SUPABASE_KEY:   ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
         run: |
           node -e "
-            const { createClient } = require('@supabase/supabase-js');
-            const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_KEY);
-            supabase
-              .from('contactos')       
-              .select('id')
-              .limit(1)
-              .then(({ error }) => {
-                if (error) throw error;
-                console.log('✅ Supabase ha respondido correctamente');
-              })
-              .catch((e) => {
-                console.error('❌ Error al hacer ping:', e);
+            (async () => {
+              const { createClient } = require('@supabase/supabase-js');
+              const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_KEY);
+              // Hacemos una consulta sencilla para generar tráfico
+              const { error } = await supabase
+                .rpc('select_1');  // o usa .from('contactos').select('id').limit(1)
+              if (error) {
+                console.error('❌ Error al hacer ping:', error);
                 process.exit(1);
-              });
+              }
+              console.log('✅ Supabase ha respondido correctamente');
+            })();
           "
