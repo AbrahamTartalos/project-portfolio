@@ -181,12 +181,12 @@ def submit_form():
 
 	# Agregar validación de URL si existe
 	if linkedin_o_web:
-    		url_regex = r'^https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)$'
-    		if not re.match(url_regex, linkedin_o_web):
-        		return jsonify({
-            			"status": "error", 
-            			"message": "La URL de LinkedIn/web no es válida. Debe comenzar con http:// o https://"
-        		}), 400
+    	    url_regex = r'^https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)$'
+    	    if not re.match(url_regex, linkedin_o_web):
+                return jsonify({
+            	    "status": "error", 
+            	    "message": "La URL de LinkedIn/web no es válida. Debe comenzar con http:// o https://"
+                }), 400
 
         honeypot = data.get("honeypot", "").strip()
 
