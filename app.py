@@ -180,8 +180,8 @@ def submit_form():
         linkedin_o_web = data.get("linkedin_o_web", "").strip() or None
 
 	# Agregar validación de URL si existe
-	if linkedin_o_web:
-    	    url_regex = r'^https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)$'
+        if linkedin_o_web:
+            url_regex = r'^https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)$'
     	    if not re.match(url_regex, linkedin_o_web):
                 return jsonify({
             	    "status": "error", 
