@@ -159,17 +159,14 @@ def index():
 @app.route('/submit_form', methods=['POST'])
 @limiter.limit(default_limit)  # Aplica la limitación a esta ruta
 def submit_form():
-    # Debugging
     app.logger.info(f"Content-Type: {request.content_type}")
     app.logger.info(f"Raw data: {request.get_data()}")
 
     try:
-        # Cambiar: Usar request.json en lugar de request.form
         data = request.get_json()
         if not data:
             return jsonify({"status": "error", "message": "Datos no proporcionados"}), 400
             
-        # Extraer datos del JSON
         nombre = data.get("name", "").strip()
         correo_electronico = data.get("correo_electronico", "").strip()
         numero_telefono = data.get("numero_telefono", "").strip()
@@ -178,26 +175,13 @@ def submit_form():
         mensaje = data.get("mensaje", "").strip()
         motivo_contacto = data.get("motivo_contacto", "").strip()
         linkedin_o_web = data.get("linkedin_o_web", "").strip() or None
-
-	# Agregar validación de URL si existe
-        if linkedin_o_web:
-            url_regex = r'^https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)$'
-    	    if not re.match(url_regex, linkedin_o_web):
-                return jsonify({
-            	    "status": "error", 
-            	    "message": "La URL de LinkedIn/web no es válida. Debe comenzar con http:// o https://"
-                }), 400
-
         honeypot = data.get("honeypot", "").strip()
 
-        # Log para debugging
         app.logger.info(f"Datos recibidos: {data}")
 
-        #  Protección contra bots
-        if honeypot:  # Si el honeypot contiene algo, es probable que sea un bot
+        if honeypot:
             return jsonify({"status": "error", "message": "Error al enviar el mensaje. Intenta de nuevo más tarde."}), 400
 
-        #  Validaciones
         if not nombre or not correo_electronico or not mensaje:
             return jsonify({"status": "error", "message": "Todos los campos obligatorios deben completarse."}), 400
 
@@ -208,17 +192,23 @@ def submit_form():
         if numero_telefono and not numero_telefono.isdigit():
             return jsonify({"status": "error", "message": "El número de teléfono debe contener solo números."}), 400
 
-        #  Verificar si se ingresó una ciudad personalizada
+        if linkedin_o_web:
+            url_regex = r'^https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)$'
+            if not re.match(url_regex, linkedin_o_web):
+                return jsonify({
+                    "status": "error", 
+                    "message": "La URL de LinkedIn/web no es válida. Debe comenzar con http:// o https://"
+                }), 400
+
         if ciudad_id == "otra":
             if otra_ciudad:
-                # Verificar si la ciudad ya existe
                 ciudad_existente = Ciudad.query.filter_by(nombre_ciudad=otra_ciudad).first()
                 if ciudad_existente:
                     ciudad_id = ciudad_existente.id
                 else:
                     nueva_ciudad = Ciudad(nombre_ciudad=otra_ciudad)
                     db.session.add(nueva_ciudad)
-                    db.session.flush()  # Usar flush en lugar de commit para obtener el ID
+                    db.session.flush()
                     ciudad_id = nueva_ciudad.id
             else:
                 return jsonify({
@@ -226,7 +216,6 @@ def submit_form():
                     "message": "Debe especificar una ciudad"
                 }), 400
 
-        #  Crear objeto Contacto y guardar en la BD
         nuevo_contacto = Contacto(
             nombre=nombre,
             correo_electronico=correo_electronico,
@@ -242,18 +231,15 @@ def submit_form():
 
         app.logger.info(f"Contacto guardado exitosamente: {nuevo_contacto.id}")
 
-        # Cambiar: Devolver JSON en lugar de redirección
         return jsonify({
             "status": "success",
             "message": "¡Envío exitoso!"
         }), 200
 
     except Exception as e:
-        # Mejorar: Loggear el error completo
         app.logger.error(f"Error en submit_form: {str(e)}", exc_info=True)
         db.session.rollback()
         
-        # Cambiar: Devolver error en JSON
         return jsonify({
             "status": "error",
             "message": f"Error interno del servidor: {str(e)}"
