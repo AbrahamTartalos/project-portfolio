@@ -4,21 +4,22 @@ name: Prevent Supabase Pause
 on:
   schedule:
     - cron: '0 3 * * *'
-  workflow_dispatch:
+  workflow_dispatch: # Permite ejecución manual
 
 jobs:
   keep-alive:
     runs-on: ubuntu-latest
+    
     steps:
       - name: Setup Node.js 20
         uses: actions/setup-node@v4
         with:
           node-version: '20'
 
-      - name: Install supabase client
+      - name: Install Supabase client
         run: npm install @supabase/supabase-js --no-audit --no-fund
 
-      - name: Ping Supabase (Query existing table)
+      - name: Ping Supabase Database
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
@@ -26,23 +27,44 @@ jobs:
           node -e "
             (async () => {
               const { createClient } = require('@supabase/supabase-js');
-              const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_KEY);
+              
+              if (!process.env.SUPABASE_URL || !process.env.SUPABASE_KEY) {
+                console.error('❌ Faltan variables de entorno');
+                process.exit(1);
+              }
+              
+              const supabase = createClient(
+                process.env.SUPABASE_URL, 
+                process.env.SUPABASE_KEY
+              );
               
               try {
-                // Opción alternativa: Query SQL directa
+                // Hacer una consulta simple a la base de datos
                 const { data, error } = await supabase
-                  .rpc('sql', { query: 'SELECT 1 as ping' });
+                  .from('contactos')
+                  .select('id')
+                  .limit(1);
                 
                 if (error) {
-                  console.error('❌ Error al hacer ping:', error);
+                  console.error('❌ Error al hacer ping:', error.message);
                   process.exit(1);
                 }
                 
-                console.log('✅ Supabase ha respondido correctamente');
-                console.log('📊 Datos obtenidos:', data ? data.length : 0, 'registros');
+                console.log('✅ Supabase respondió correctamente');
+                console.log('📊 Conexión activa - Base de datos operativa');
+                console.log('⏰ Timestamp:', new Date().toISOString());
               } catch (err) {
-                console.error('❌ Error inesperado:', err);
+                console.error('❌ Error inesperado:', err.message);
                 process.exit(1);
               }
             })();
           "
+
+      - name: Report Status
+        if: always()
+        run: |
+          if [ $? -eq 0 ]; then
+            echo "✅ Keep-alive exitoso"
+          else
+            echo "❌ Keep-alive falló"
+          fi
