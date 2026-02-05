@@ -53,15 +53,21 @@ if (select) {
   });
 }
 
-// Función para filtrar proyectos
+// Función para filtrar proyectos 
 const filterFunc = function (selectedValue) {
   filterItems.forEach(item => {
     const category = item.dataset.category ? item.dataset.category.toLowerCase().trim() : "";
 
-    if (selectedValue === "todos" || selectedValue === category) {
-      item.style.display = "block"; // Mostrar el proyecto
-    } else {
-      item.style.display = "none"; // Ocultar el proyecto
+    // Si es "todos", mostrar todo
+    if (selectedValue === "todos") {
+      item.style.display = "block";
+    } 
+    // Verificar si la categoría seleccionada está dentro de las categorías del proyecto
+    else if (category.includes(selectedValue)) {
+      item.style.display = "block";
+    } 
+    else {
+      item.style.display = "none";
     }
   });
 };
