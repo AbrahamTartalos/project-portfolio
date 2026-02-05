@@ -7,7 +7,7 @@
   <meta name="admin-token" content="{{ SECRET_ADMIN_TOKEN }}">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta property="og:title" content="Portafolio de Abraham Tartalos">
-  <meta property="og:description" content="Descubre mis proyectos, habilidades y experiencia en ciencia de datos.">
+  <meta property="og:description" content="Descubre mis proyectos, habilidades y experiencia en ciencia de datos, IA y programación.">
   <meta property="og:image" content="{{ url_for('static', filename='images/web-preview.jpeg', _external=True) }}">
   <meta property="og:url" content="https://abrahamtartalos.onrender.com">
   <meta property="og:type" content="website">
@@ -473,15 +473,19 @@
             </li>
 
             <li class="filter-item">
-              <button data-filter-btn>Ciencia de Datos</button>
+              <button data-filter-btn>Machine Learning</button>
             </li>
 
             <li class="filter-item">
-              <button data-filter-btn>Aprendizaje Automático</button>
+              <button data-filter-btn>Salud & Biomedicina</button>
             </li>
 
             <li class="filter-item">
-              <button data-filter-btn>Redes Neuronales</button>
+              <button data-filter-btn>Fintech & Finanzas</button>
+            </li>
+
+            <li class="filter-item">
+              <button data-filter-btn>Análisis Predictivo</button>
             </li>
 
           </ul>
@@ -505,15 +509,19 @@
               </li>
 
               <li class="select-item">
-                <button data-select-item>Ciencia de Datos</button>
+                <button data-select-item>Machine Learning</button>
               </li>
 
               <li class="select-item">
-                <button data-select-item>Aprendizaje Automático</button>
+                <button data-select-item>Salud 6 Biomedicina</button>
               </li>
 
               <li class="select-item">
-                <button data-select-item>Redes Neuronales</button>
+                <button data-select-item>Fintech & Finanzas</button>
+              </li>
+
+              <li class="select-item">
+                <button data-select-item>Análisis Predictivo</button>
               </li>
 
             </ul>
@@ -521,7 +529,7 @@
           </div>
 
           <ul class="project-list">
-            <li class="project-item active" data-filter-item data-category="aprendizaje automático">
+            <li class="project-item active" data-filter-item data-category="machine learning, salud & biomedicina, análisis predictivo">
               <a href="https://alzheimermm.vercel.app/" target="_blank" rel="noopener noreferrer">
                 <figure class="project-img">
                   <div class="project-item-icon-box">
@@ -550,7 +558,7 @@
               </a>
             </li>
 
-            <li class="project-item active" data-filter-item data-category="ciencia de datos">
+            <li class="project-item active" data-filter-item data-category="machine learning, análisis predictivo">
               <a href="https://github.com/AbrahamTartalos/prediccion-aterrizaje-falcon9-spacex" target="_blank" rel="noopener noreferrer">
                 <figure class="project-img">
                   <div class="project-item-icon-box">
@@ -570,6 +578,31 @@
                     <li class="skill">Matplotlib</li>
                     <li class="skill">Folium</li>
                     <li class="skill">Scikit-learn</li>
+                  </ul>
+                </div>
+              </a>
+            </li>
+
+            <li class="project-item active" data-filter-item data-category="machine learning, fintech & finanzas, análisis predictivo">
+              <a href="https://github.com/AbrahamTartalos/" target="_blank" rel="noopener noreferrer">
+                <figure class="project-img">
+                  <div class="project-item-icon-box">
+                    <ion-icon name="eye-outline"></ion-icon>
+                  </div>
+                  <img src="./assets/images/project-3.jpg" alt="Fintech Project" loading="lazy">
+                </figure>
+                <div class="project-info">
+                  <h3 class="project-title">Motor de Micro Préstamos Inclusivo</h3>
+                  <p class="project-category">Fintech & Finanzas</p>
+                  <p class="project-description">Motor de micro-préstamos que rompe barreras financieras usando Machine Learning. Con datos alternativos (pagos de servicios, arraigo, estabilidad de ingresos) logré +15% más aprobaciones manteniendo bajo riesgo. Incluye dashboard interactivo y explicabilidad total (SHAP). 💳🌍 ¿Cómo convertir la informalidad en oportunidad? ¡Descúbrelo aquí! 👆</p>
+                  <ul class="project-skills">
+                    <li class="skill">Machine Learning</li>
+                    <li class="skill">Feature Engineering</li>
+                    <li class="skill">XGBoost</li>
+                    <li class="skill">SHAP</li>
+                    <li class="skill">Streamlit</li>
+                    <li class="skill">Financial Analytics</li>
+                    <li class="skill">Python</li>
                   </ul>
                 </div>
               </a>
