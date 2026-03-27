@@ -1,678 +1,640 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" data-theme="dark">
 
 <head>
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="admin-token" content="{{ SECRET_ADMIN_TOKEN }}">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  
-  <!-- SEO Meta Tags -->
-  <meta name="description" content="Portfolio de Abraham Tartalos - Científico de Datos especializado en Machine Learning, Python y Análisis Predictivo">
-  <meta name="keywords" content="Data Science, Machine Learning, Python, Data Analysis, Portfolio">
+  <meta name="description" content="Portfolio de Abraham Tartalos — Científico de Datos especializado en Machine Learning, Python y Análisis Predictivo.">
   <meta name="author" content="Abraham Tartalos">
-  
-  <!-- Open Graph Meta Tags -->
-  <meta property="og:title" content="Abraham Tartalos | Data Scientist Portfolio">
-  <meta property="og:description" content="Descubre mis proyectos, habilidades y experiencia en ciencia de datos, IA y programación.">
+  <meta property="og:title" content="Abraham Tartalos | Científico de Datos">
+  <meta property="og:description" content="Proyectos de ML, Alzheimer multimodal y microcréditos inclusivos con IA.">
   <meta property="og:image" content="{{ url_for('static', filename='images/web-preview.jpeg', _external=True) }}">
   <meta property="og:url" content="https://abrahamtartalos.onrender.com">
   <meta property="og:type" content="website">
-  
-  <!-- Twitter Card Meta Tags -->
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Abraham Tartalos | Data Scientist">
-  <meta name="twitter:description" content="Portfolio de proyectos en Data Science y Machine Learning">
-  
-  <title>Abraham Tartalos | Data Scientist Portfolio 2026</title>
 
-  <!-- Favicon -->
+  <title>Abraham Tartalos | Portfolio</title>
   <link rel="shortcut icon" href="./assets/images/logo.ico" type="image/x-icon">
 
-  <!-- Google Fonts - Modern Typography -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400..800&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
 
-  <!-- Custom CSS -->
   <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/components.css') }}">
 
-  <!-- Ionicons -->
   <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
   <script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
 </head>
 
 <body>
 
-  <!--
-    - #MAIN CONTAINER
-  -->
-  <main>
+  <!-- ===================== NAVBAR FIJA ===================== -->
+  <header class="site-header" id="site-header">
+    <nav class="nav-container" role="navigation" aria-label="Navegación principal">
 
-    <!--
-      - #SIDEBAR
-    -->
-    <aside class="sidebar glass" data-sidebar>
+      <!-- Logo / nombre -->
+      <a href="#inicio" class="nav-brand">
+        <img src="{{ url_for('static', filename='images/my-avatar.png') }}"
+             alt="Abraham Tartalos" class="nav-avatar">
+        <span class="nav-name">Abraham Tartalos</span>
+      </a>
 
-      <div class="sidebar-info">
-        <figure class="avatar-box">
-          <img src="{{url_for('static', filename='images/my-avatar.png')}}" alt="Abraham Tartalos" width="150" height="150">
-        </figure>
+      <!-- Links anclados -->
+      <ul class="nav-links" id="nav-links">
+        <li><a href="#inicio"    class="nav-link active" data-section="inicio"
+               data-es="Inicio" data-en="Home">Inicio</a></li>
+        <li><a href="#proyectos" class="nav-link" data-section="proyectos"
+               data-es="Proyectos" data-en="Projects">Proyectos</a></li>
+        <li><a href="#sobre-mi"  class="nav-link" data-section="sobre-mi"
+               data-es="Sobre mí" data-en="About">Sobre mí</a></li>
+        <li><a href="#resumen"   class="nav-link" data-section="resumen"
+               data-es="Resumen" data-en="Resume">Resumen</a></li>
+        <li><a href="#contacto"  class="nav-link" data-section="contacto"
+               data-es="Contacto" data-en="Contact">Contacto</a></li>
+      </ul>
 
-        <div class="info-content">
-          <h1 class="name">Abraham Tartalos</h1>
-          <p class="title">Científico de Datos</p>
+      <!-- Controles -->
+      <div class="nav-controls">
+        <!-- Language -->
+        <div class="lang-toggle" id="lang-toggle" aria-label="Cambiar idioma">
+          <button class="lang-btn active" data-lang="es">ES</button>
+          <span class="lang-sep">·</span>
+          <button class="lang-btn" data-lang="en">EN</button>
         </div>
-
-        <button class="info_more-btn" data-sidebar-btn aria-label="Mostrar más información">
-          <span>Mostrar contactos</span>
-          <ion-icon name="chevron-down"></ion-icon>
+        <!-- Theme -->
+        <button class="theme-btn" id="theme-btn" aria-label="Cambiar tema">
+          <ion-icon name="sunny-outline"></ion-icon>
+        </button>
+        <!-- Mobile hamburger -->
+        <button class="hamburger" id="hamburger" aria-label="Menú" aria-expanded="false">
+          <span></span><span></span><span></span>
         </button>
       </div>
 
-      <div class="sidebar-info_more">
-        <div class="separator"></div>
+    </nav>
+    <!-- Barra de progreso de scroll -->
+    <div class="scroll-progress" id="scroll-progress"></div>
+  </header>
 
-        <ul class="contacts-list">
-          <li class="contact-item">
-            <div class="icon-box">
-              <ion-icon name="document-text-outline"></ion-icon>
-            </div>
-            <a href="{{ url_for('static', filename='cv/abraham-tartalos-cv_es.pdf') }}" class="contact-link" download>
-              <div class="contact-info">
-                <p class="contact-title">CV</p>
-                <span id="cv-text">Descargar CV aquí</span>
-              </div>
-            </a>
-          </li>
-        
-          <li class="contact-item">
-            <div class="icon-box">
-              <ion-icon name="phone-portrait-outline"></ion-icon>
-            </div>
-            <div class="contact-info">
-              <p class="contact-title">Teléfono Celular</p>
-              <a href="#" class="contact-link" id="phone-link">Ver número</a>
-            </div>
-          </li>
-        </ul>
 
-        <div class="separator"></div>
+  <main>
 
-        <ul class="social-list">
-          <li class="social-item">
-            <a href="https://www.linkedin.com/in/abrahamtartalos" class="social-link" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn">
-              <ion-icon name="logo-linkedin"></ion-icon>
-            </a>
-          </li>
-          <li class="social-item">
-            <a href="https://github.com/AbrahamTartalos" class="social-link" target="_blank" rel="noopener noreferrer" aria-label="GitHub">
-              <ion-icon name="logo-github"></ion-icon>
-            </a>
-          </li>
-          <li class="social-item">
-            <a href="mailto:abrahamrtartalos@gmail.com" class="social-link" aria-label="Email">
-              <ion-icon name="mail-outline"></ion-icon>
-            </a>
-          </li>
-        </ul>
+    <!-- ===================== HERO / INICIO ===================== -->
+    <section class="hero" id="inicio">
+      <div class="container">
+        <div class="hero-inner">
+
+          <!-- Texto -->
+          <div class="hero-text" data-reveal>
+            <p class="hero-eyebrow"
+               data-es="Científico de Datos · Salta, Argentina"
+               data-en="Data Scientist · Salta, Argentina">
+              Científico de Datos · Salta, Argentina
+            </p>
+
+            <h1 class="hero-title">
+              <span data-es="Datos complejos en" data-en="Complex data into">Datos complejos en</span><br>
+              <span class="text-accent"
+                    data-es="soluciones con impacto real."
+                    data-en="real-world solutions.">soluciones con impacto real.</span>
+            </h1>
+
+            <p class="hero-body"
+               data-es="Trabajo en predicción del Alzheimer con datos multimodales y en un motor de microcréditos inclusivo con ML. Busco donde mis modelos generen valor tangible."
+               data-en="I work on Alzheimer prediction with multimodal data and an inclusive micro-lending engine with ML. Looking for where my models generate tangible value.">
+              Trabajo en predicción del Alzheimer con datos multimodales y en un motor de
+              microcréditos inclusivo con ML. Busco donde mis modelos generen valor tangible.
+            </p>
+
+            <div class="hero-actions">
+              <a href="#proyectos" class="btn btn-primary">
+                <span data-es="Ver proyectos" data-en="See projects">Ver proyectos</span>
+                <ion-icon name="arrow-down-outline"></ion-icon>
+              </a>
+              <a href="#contacto" class="btn btn-ghost">
+                <span data-es="Contáctame" data-en="Contact me">Contáctame</span>
+                <ion-icon name="mail-outline"></ion-icon>
+              </a>
+            </div>
+
+            <!-- Social rápido -->
+            <div class="hero-social">
+              <a href="https://www.linkedin.com/in/abrahamtartalos"
+                 target="_blank" rel="noopener noreferrer"
+                 class="social-pill" aria-label="LinkedIn">
+                <ion-icon name="logo-linkedin"></ion-icon> LinkedIn
+              </a>
+              <a href="https://github.com/AbrahamTartalos"
+                 target="_blank" rel="noopener noreferrer"
+                 class="social-pill" aria-label="GitHub">
+                <ion-icon name="logo-github"></ion-icon> GitHub
+              </a>
+              <a href="{{ url_for('static', filename='cv/abraham-tartalos-cv_es.pdf') }}"
+                 download class="social-pill" aria-label="Descargar CV">
+                <ion-icon name="document-text-outline"></ion-icon>
+                <span data-es="Descargar CV" data-en="Download CV">Descargar CV</span>
+              </a>
+            </div>
+          </div>
+
+          <!-- Avatar -->
+          <div class="hero-avatar-wrap" data-reveal>
+            <div class="hero-avatar-ring">
+              <img src="{{ url_for('static', filename='images/my-avatar.png') }}"
+                   alt="Abraham Tartalos" class="hero-avatar-img">
+            </div>
+            <!-- Badges flotantes -->
+            <div class="avatar-badge badge-top"
+                 data-es="3+ años Python" data-en="3+ yrs Python">3+ años Python</div>
+            <div class="avatar-badge badge-bottom"
+                 data-es="LightGBM · SHAP · MLflow" data-en="LightGBM · SHAP · MLflow">LightGBM · SHAP · MLflow</div>
+          </div>
+
+        </div>
       </div>
 
-    </aside>
+      <!-- Decoración de fondo -->
+      <div class="hero-bg-orb orb-1" aria-hidden="true"></div>
+      <div class="hero-bg-orb orb-2" aria-hidden="true"></div>
+    </section>
 
-    <!--
-      - #MAIN CONTENT
-    -->
-    <div class="main-content">
 
-      <!--
-        - #NAVBAR
-      -->
-      <nav class="navbar" role="navigation">
-        <ul class="navbar-list">
-          <li class="navbar-item">
-            <button class="navbar-link active" data-nav-link="acerca-de-mi">Acerca de mí</button>
-          </li>
-          <li class="navbar-item">
-            <button class="navbar-link" data-nav-link="resumen">Resumen</button>
-          </li>
-          <li class="navbar-item">
-            <button class="navbar-link" data-nav-link="proyectos">Proyectos</button>
-          </li>
-          <li class="navbar-item">
-            <button class="navbar-link" data-nav-link="contacto">Contacto</button>
-          </li>
-        </ul>
-      </nav>
+    <!-- ===================== PROYECTOS ===================== -->
+    <section class="section" id="proyectos">
+      <div class="container">
 
-      <!--
-        - #ABOUT / HERO SECTION
-      -->
-      <article class="about glass active" data-page="acerca-de-mi">
-        
-        <!-- Hero Section -->
-        <section class="hero-section" data-reveal="fade">
-          <h2 class="hero-title">
-            <span class="text-gradient" data-gradient-reveal>Transformando datos en</span>
-            <br>
-            <span class="text-gradient" data-gradient-reveal>soluciones predictivas</span>
-          </h2>
-          
-          <p class="hero-subtitle" data-reveal="up">
-            Científico de Datos especializado en Machine Learning y análisis predictivo.
-            Creando impacto real a través de la inteligencia artificial.
+        <div class="section-header" data-reveal>
+          <h2 class="section-title"
+              data-es="Proyectos" data-en="Projects">Proyectos</h2>
+          <p class="section-subtitle"
+             data-es="Trabajo orientado a impacto medible."
+             data-en="Work oriented toward measurable impact.">
+            Trabajo orientado a impacto medible.
           </p>
+        </div>
 
-          <div class="hero-cta-group" data-stagger>
-            <button class="cta-button cta-primary" data-magnetic onclick="document.querySelector('[data-nav-link=proyectos]').click()">
-              <span>Ver Proyectos</span>
-              <ion-icon name="arrow-forward-outline"></ion-icon>
-            </button>
-            <button class="cta-button cta-secondary" data-magnetic onclick="document.querySelector('[data-nav-link=contacto]').click()">
-              <span>Contáctame</span>
-              <ion-icon name="mail-outline"></ion-icon>
-            </button>
-          </div>
+        <!-- BENTO GRID -->
+        <div class="bento-grid" data-reveal>
 
-          <div class="scroll-indicator">
-            <span>Scroll para explorar</span>
-            <ion-icon name="chevron-down-outline"></ion-icon>
-          </div>
-        </section>
-
-        <div class="separator"></div>
-
-        <!-- About Text -->
-        <header data-reveal="up">
-          <h2 class="h2 article-title">Acerca de mí</h2>
-        </header>
-
-        <section class="about-text" data-stagger>
-          <p data-reveal="up">
-            👋 ¡Hola! Soy Abraham, Científico de Datos especializado en Python y Machine Learning. 
-            Me apasiona transformar datos complejos en soluciones predictivas que generen impacto real.
-          </p>
-
-          <p data-reveal="up">
-            Actualmente lidero dos proyectos innovadores: un sistema de monitorización del Alzheimer 
-            que fusiona datos multimodales para predecir riesgos y estratificar pacientes, y un motor 
-            de microcréditos inclusivo que democratiza el acceso financiero para trabajadores informales 
-            mediante análisis de datos alternativos.
-          </p>
-
-          <p data-reveal="up">
-            Busco activamente una oportunidad donde pueda aportar mi experiencia en análisis predictivo, 
-            machine learning y visualización de datos para resolver desafíos complejos. Si buscas alguien 
-            que combine habilidades técnicas con visión de impacto social, ¡conectemos!
-          </p>
-        </section>
-
-        <!--
-          - SKILLS SECTION
-        -->
-        <section class="service section" data-reveal="up">
-          <div class="container">
-            <h3 class="h3 service-title">Mis Habilidades</h3>
-        
-            <!-- Technical Skills -->
-            <h4 class="skills-category" data-reveal="left">Habilidades Técnicas</h4>
-            <ul class="skills-list glass" data-stagger>
-        
-              <li class="skills-item" data-reveal="up">
-                <img src="./assets/images/python.png" alt="Python" loading="lazy">
-                <div class="skill-details">
-                  <h4>
-                    Python
-                    <span class="skill-experience">3+ años</span>
-                  </h4>
-                  <p>Lenguaje esencial para la ciencia de datos y machine learning. Manipulación avanzada de datos con Pandas, NumPy y visualización con Matplotlib y Seaborn.</p>
+          <!-- Card grande: Microcréditos -->
+          <article class="bento-card bento-featured">
+            <a href="https://v0-microprestamos-landing.vercel.app/"
+               target="_blank" rel="noopener noreferrer" class="bento-link">
+              <div class="bento-img-wrap">
+                <img src="./assets/images/project-3.jpg"
+                     alt="Motor de Microcréditos" loading="lazy">
+                <div class="bento-overlay">
+                  <ion-icon name="open-outline"></ion-icon>
                 </div>
-              </li>
-        
-              <li class="skills-item" data-reveal="up">
-                <img src="./assets/images/servidor-sql.png" alt="SQL" loading="lazy">
-                <div class="skill-details">
-                  <h4>
-                    SQL
-                    <span class="skill-experience">3+ años</span>
-                  </h4>
-                  <p>Dominio de consultas SQL para extracción, manipulación y análisis de datos en bases de datos relacionales como MySQL, PostgreSQL y SQLite.</p>
-                </div>
-              </li>
-        
-              <li class="skills-item" data-reveal="up">
-                <img src="./assets/images/ml.png" alt="Machine Learning" loading="lazy">
-                <div class="skill-details">
-                  <h4>
-                    Machine Learning
-                    <span class="skill-experience">2+ años</span>
-                  </h4>
-                  <p>Desarrollo y optimización de modelos predictivos con Scikit-learn y SnapML.</p>
-                </div>
-              </li>
-              
-              <li class="skills-item" data-reveal="up">
-                <img src="./assets/images/web-scraper.png" alt="Web Scraping" loading="lazy">
-                <div class="skill-details">
-                  <h4>
-                    Web Scraping
-                    <span class="skill-experience">2+ años</span>
-                  </h4>
-                  <p>Extracción de datos web automatizada con BeautifulSoup y Scrapy.</p>
-                </div>
-              </li>
-
-              <li class="skills-item" data-reveal="up">
-                <img src="./assets/images/cloud-service.png" alt="Cloud Computing" loading="lazy">
-                <div class="skill-details">
-                  <h4>
-                    Cloud Computing
-                    <span class="skill-experience">1+ año</span>
-                  </h4>
-                  <p>Despliegue y escalabilidad de modelos en Google Cloud e IBM Cloud Watson AI.</p>
-                </div>
-              </li>
-
-              <li class="skills-item" data-reveal="up">
-                <img src="./assets/images/data-visualization.png" alt="Visualización de Datos" loading="lazy">
-                <div class="skill-details">
-                  <h4>
-                    Visualización de Datos
-                    <span class="skill-experience">2+ años</span>
-                  </h4>
-                  <p>Análisis gráfico y dashboards interactivos con Folium, Plotly, Plotly Dash y Seaborn.</p>
-                </div>
-              </li>
-
-              <li class="skills-item" data-reveal="up">
-                <img src="./assets/images/feature.png" alt="Feature Engineering" loading="lazy">
-                <div class="skill-details">
-                  <h4>
-                    Feature Engineering
-                    <span class="skill-experience">2+ años</span>
-                  </h4>
-                  <p>Optimización de modelos mediante técnicas de transformación, encoding y extracción de características.</p>
-                </div>
-              </li>
-
-              <li class="skills-item" data-reveal="up">
-                <img src="./assets/images/optimization.png" alt="Optimización de Modelos" loading="lazy">
-                <div class="skill-details">
-                  <h4>
-                    Optimización de Modelos
-                    <span class="skill-experience">2+ años</span>
-                  </h4>
-                  <p>Mejora de rendimiento con tuning de hiperparámetros y validación cruzada.</p>
-                </div>
-              </li>
-
-              <li class="skills-item" data-reveal="up">
-                <img src="./assets/images/gen-ai.png" alt="IA Generativa" loading="lazy">
-                <div class="skill-details">
-                  <h4>
-                    IA Generativa
-                    <span class="skill-experience">1+ año</span>
-                  </h4>
-                  <p>Aplicación de modelos avanzados como GPT y GANs para generación y análisis de datos.</p>
-                </div>
-              </li>
-
-              <li class="skills-item" data-reveal="up">
-                <img src="./assets/images/matematicas.png" alt="Matemáticas" loading="lazy">
-                <div class="skill-details">
-                  <h4>
-                    Matemáticas
-                    <span class="skill-experience">4+ años</span>
-                  </h4>
-                  <p>Álgebra, cálculo y optimización aplicados a modelos de machine learning y análisis de datos.</p>
-                </div>
-              </li>
-
-              <li class="skills-item" data-reveal="up">
-                <img src="./assets/images/estadisticas.png" alt="Estadística" loading="lazy">
-                <div class="skill-details">
-                  <h4>
-                    Estadística
-                    <span class="skill-experience">3+ años</span>
-                  </h4>
-                  <p>Inferencia, regresión y pruebas de hipótesis para análisis de datos.</p>
-                </div>
-              </li>
-        
-            </ul>
-        
-            <!-- Soft Skills -->
-            <h4 class="skills-category" data-reveal="left">Habilidades Blandas</h4>
-            <ul class="skills-list glass" data-stagger>
-        
-              <li class="skills-item" data-reveal="up">
-                <img src="./assets/images/problem-solving.png" alt="Problem Solving" loading="lazy">
-                <div class="skill-details">
-                  <h4>Resolución de Problemas</h4>
-                  <p>Capacidad para analizar y resolver problemas complejos con datos.</p>
-                </div>
-              </li>
-        
-              <li class="skills-item" data-reveal="up">
-                <img src="./assets/images/comunication.png" alt="Communication" loading="lazy">
-                <div class="skill-details">
-                  <h4>Comunicación</h4>
-                  <p>Explicación efectiva de análisis y resultados a diferentes audiencias.</p>
-                </div>
-              </li>
-        
-              <li class="skills-item" data-reveal="up">
-                <img src="./assets/images/teamwork.png" alt="Teamwork" loading="lazy">
-                <div class="skill-details">
-                  <h4>Trabajo en Equipo</h4>
-                  <p>Experiencia colaborando en equipos de desarrolladores.</p>
-                </div>
-              </li>
-        
-              <li class="skills-item" data-reveal="up">
-                <img src="./assets/images/critical-thinking.png" alt="Critical Thinking" loading="lazy">
-                <div class="skill-details">
-                  <h4>Pensamiento Crítico</h4>
-                  <p>Evaluación objetiva de datos y modelos para la toma de decisiones estratégicas.</p>
-                </div>
-              </li>
-        
-            </ul>
-        
-          </div>
-        </section>
-
-      </article>
-
-      <!--
-        - #RESUME
-      -->
-      <article class="resume glass" data-page="resumen">
-
-        <header data-reveal="up">
-          <h2 class="h2 article-title">Resumen</h2>
-        </header>
-
-        <section class="timeline" data-reveal="up">
-          <div class="title-wrapper">
-            <div class="icon-box">
-              <ion-icon name="book-outline"></ion-icon>
-            </div>
-            <h3 class="h3">Educación</h3>
-          </div>
-
-          <ol class="timeline-list" data-stagger>
-            <li class="timeline-item" data-reveal="right">
-              <h4 class="h4 timeline-item-title">Certificado Profesional de Ciencia de Datos de IBM</h4>
-              <span>2024 — 2025</span>
-              <p class="timeline-text">
-                Especialización en análisis de datos, Machine Learning y herramientas clave como Python, SQL, Pandas Web Scraping y visualización de datos 
-                con Beautiful Soup, Matplotlib, Seaborn y Plotly.
-              </p>
-            </li>
-
-            <li class="timeline-item" data-reveal="right">
-              <h4 class="h4 timeline-item-title">Universidad Nacional de Salta</h4>
-              <span>2022 — 2024</span>
-              <p class="timeline-text">
-                Formación en programación con C y Java, algoritmos, estructuras de datos y sistemas operativos, junto con fundamentos de 
-                arquitectura computacional y matemáticas aplicadas.
-              </p>
-            </li>
-          </ol>
-        </section>
-
-      </article>
-
-      <!--
-        - #PROJECTS
-      -->
-      <article class="portfolio glass" data-page="proyectos">
-
-        <header data-reveal="up">
-          <h2 class="h2 article-title">Proyectos</h2>
-        </header>
-
-        <section class="projects">
-
-          <!-- Desktop Filters -->
-          <ul class="filter-list" data-reveal="up">
-            <li class="filter-item">
-              <button class="active" data-filter-btn>Todos</button>
-            </li>
-            <li class="filter-item">
-              <button data-filter-btn>Machine Learning</button>
-            </li>
-            <li class="filter-item">
-              <button data-filter-btn>Salud & Biomedicina</button>
-            </li>
-            <li class="filter-item">
-              <button data-filter-btn>Fintech & Finanzas</button>
-            </li>
-            <li class="filter-item">
-              <button data-filter-btn>Análisis Predictivo</button>
-            </li>
-          </ul>
-
-          <!-- Mobile Filter Select -->
-          <div class="filter-select-box">
-            <button class="filter-select" data-select>
-              <div class="select-value" data-select-value>Seleccionar categoría</div>
-              <div class="select-icon">
-                <ion-icon name="chevron-down"></ion-icon>
               </div>
-            </button>
-
-            <ul class="select-list">
-              <li class="select-item"><button data-select-item>Todos</button></li>
-              <li class="select-item"><button data-select-item>Machine Learning</button></li>
-              <li class="select-item"><button data-select-item>Salud & Biomedicina</button></li>
-              <li class="select-item"><button data-select-item>Fintech & Finanzas</button></li>
-              <li class="select-item"><button data-select-item>Análisis Predictivo</button></li>
-            </ul>
-          </div>
-
-          <!-- Project Grid -->
-          <ul class="project-list" data-stagger>
-            
-            <!-- Project 1: Microcréditos -->
-            <li class="project-item active card-hover-lift" data-filter-item data-category="machine learning, fintech & finanzas, análisis predictivo" data-reveal="up">
-              <a href="https://v0-microprestamos-landing.vercel.app/" target="_blank" rel="noopener noreferrer">
-                <figure class="project-img">
-                  <div class="project-item-icon-box">
-                    <ion-icon name="eye-outline"></ion-icon>
-                  </div>
-                  <img src="./assets/images/project-3.jpg" alt="Motor de Microcréditos" loading="lazy">
-                </figure>
-                <div class="project-info">
-                  <h3 class="project-title">Motor de Micro Préstamos Inclusivo</h3>
-                  <p class="project-category">Fintech & Finanzas</p>
-                  
-                  <div class="project-metrics">
-                    <span class="metric-badge">
+              <div class="bento-body">
+                <div class="bento-meta">
+                  <span class="bento-tag"
+                        data-es="Fintech & ML" data-en="Fintech & ML">Fintech & ML</span>
+                  <div class="bento-metrics">
+                    <span class="metric">
                       <ion-icon name="trending-up-outline"></ion-icon>
                       +15% aprobaciones
                     </span>
-                    <span class="metric-badge">
+                    <span class="metric">
                       <ion-icon name="shield-checkmark-outline"></ion-icon>
-                      Bajo riesgo
+                      <span data-es="Bajo riesgo" data-en="Low risk">Bajo riesgo</span>
                     </span>
                   </div>
-                  
-                  <p class="project-description">Motor de micro-préstamos que rompe barreras financieras usando Machine Learning. Con datos alternativos logré +15% más aprobaciones manteniendo bajo riesgo.</p>
-                  
-                  <ul class="project-skills">
-                    <li class="skill">Machine Learning</li>
-                    <li class="skill">XGBoost</li>
-                    <li class="skill">SHAP</li>
-                    <li class="skill">Streamlit</li>
-                    <li class="skill">Python</li>
-                  </ul>
                 </div>
-              </a>
-            </li>
+                <h3 class="bento-title"
+                    data-es="Motor de Micro Préstamos Inclusivo"
+                    data-en="Inclusive Micro-Lending Engine">
+                  Motor de Micro Préstamos Inclusivo
+                </h3>
+                <p class="bento-desc"
+                   data-es="Motor de micro-préstamos con ML que usa datos alternativos para lograr +15% más aprobaciones manteniendo bajo riesgo. Explicabilidad total con SHAP."
+                   data-en="ML micro-lending engine using alternative data to achieve +15% more approvals while keeping risk low. Full explainability with SHAP.">
+                  Motor de micro-préstamos con ML que usa datos alternativos para lograr +15% más aprobaciones manteniendo bajo riesgo. Explicabilidad total con SHAP.
+                </p>
+                <ul class="bento-skills">
+                  <li>XGBoost</li><li>SHAP</li><li>Streamlit</li><li>Python</li>
+                </ul>
+              </div>
+            </a>
+          </article>
 
-            <!-- Project 2: Alzheimer -->
-            <li class="project-item active card-hover-lift" data-filter-item data-category="machine learning, salud & biomedicina, análisis predictivo" data-reveal="up">
-              <a href="https://alzheimermm.vercel.app/" target="_blank" rel="noopener noreferrer">
-                <figure class="project-img">
-                  <div class="project-item-icon-box">
-                    <ion-icon name="eye-outline"></ion-icon>
-                  </div>
-                  <img src="./assets/images/project-2.jpg" alt="Sistema Alzheimer" loading="lazy">
-                </figure>
-                <div class="project-info">
-                  <h3 class="project-title">Monitorización Multimodal del Alzheimer</h3>
-                  <p class="project-category">Salud & Biomedicina</p>
-                  
-                  <div class="project-metrics">
-                    <span class="metric-badge">
+          <!-- Card mediana: Alzheimer -->
+          <article class="bento-card bento-medium">
+            <a href="https://alzheimermm.vercel.app/"
+               target="_blank" rel="noopener noreferrer" class="bento-link">
+              <div class="bento-img-wrap">
+                <img src="./assets/images/project-2.jpg"
+                     alt="Sistema Alzheimer" loading="lazy">
+                <div class="bento-overlay">
+                  <ion-icon name="open-outline"></ion-icon>
+                </div>
+              </div>
+              <div class="bento-body">
+                <div class="bento-meta">
+                  <span class="bento-tag"
+                        data-es="Salud & Biomedicina" data-en="Health & Biomedicine">Salud & Biomedicina</span>
+                  <div class="bento-metrics">
+                    <span class="metric">
                       <ion-icon name="pulse-outline"></ion-icon>
-                      Datos multimodales
-                    </span>
-                    <span class="metric-badge">
-                      <ion-icon name="analytics-outline"></ion-icon>
-                      Predicción avanzada
+                      <span data-es="Datos multimodales" data-en="Multimodal data">Datos multimodales</span>
                     </span>
                   </div>
-                  
-                  <p class="project-description">Sistema integral para predecir y monitorizar el riesgo de Alzheimer fusionando datos multimodales (biomarcadores, imágenes, genética).</p>
-                  
-                  <ul class="project-skills">
-                    <li class="skill">Python</li>
-                    <li class="skill">XGBoost</li>
-                    <li class="skill">SHAP</li>
-                    <li class="skill">MLflow</li>
-                    <li class="skill">Plotly Dash</li>
-                  </ul>
                 </div>
-              </a>
-            </li>
+                <h3 class="bento-title"
+                    data-es="Monitorización Multimodal del Alzheimer"
+                    data-en="Multimodal Alzheimer Monitoring">
+                  Monitorización Multimodal del Alzheimer
+                </h3>
+                <p class="bento-desc"
+                   data-es="Sistema para predecir y monitorizar el riesgo de Alzheimer fusionando biomarcadores, imágenes MRI y genética."
+                   data-en="System to predict and monitor Alzheimer risk by fusing biomarkers, MRI images, and genetics.">
+                  Sistema para predecir y monitorizar el riesgo de Alzheimer fusionando biomarcadores, imágenes MRI y genética.
+                </p>
+                <ul class="bento-skills">
+                  <li>MLflow</li><li>SHAP</li><li>Plotly Dash</li><li>Python</li>
+                </ul>
+              </div>
+            </a>
+          </article>
 
-            <!-- Project 3: SpaceX -->
-            <li class="project-item active card-hover-lift" data-filter-item data-category="machine learning, análisis predictivo" data-reveal="up">
-              <a href="https://github.com/AbrahamTartalos/prediccion-aterrizaje-falcon9-spacex" target="_blank" rel="noopener noreferrer">
-                <figure class="project-img">
-                  <div class="project-item-icon-box">
-                    <ion-icon name="eye-outline"></ion-icon>
-                  </div>
-                  <img src="./assets/images/project-1.jpg" alt="Predicción Falcon 9" loading="lazy">
-                </figure>
-                <div class="project-info">
-                  <h3 class="project-title">Predicción de Aterrizaje Falcon 9</h3>
-                  <p class="project-category">Machine Learning</p>
-                  
-                  <div class="project-metrics">
-                    <span class="metric-badge">
+          <!-- Card pequeña: SpaceX -->
+          <article class="bento-card bento-small">
+            <a href="https://github.com/AbrahamTartalos/prediccion-aterrizaje-falcon9-spacex"
+               target="_blank" rel="noopener noreferrer" class="bento-link">
+              <div class="bento-img-wrap">
+                <img src="./assets/images/project-1.jpg"
+                     alt="Predicción Falcon 9" loading="lazy">
+                <div class="bento-overlay">
+                  <ion-icon name="open-outline"></ion-icon>
+                </div>
+              </div>
+              <div class="bento-body">
+                <div class="bento-meta">
+                  <span class="bento-tag">Machine Learning</span>
+                  <div class="bento-metrics">
+                    <span class="metric">
                       <ion-icon name="rocket-outline"></ion-icon>
-                      SpaceX Data
+                      SpaceX Real Data
                     </span>
                   </div>
-                  
-                  <p class="project-description">Modelos de ML para predecir el aterrizaje del Falcon 9 de SpaceX, optimizando la precisión con datos reales.</p>
-                  
-                  <ul class="project-skills">
-                    <li class="skill">Python</li>
-                    <li class="skill">SQL</li>
-                    <li class="skill">Pandas</li>
-                    <li class="skill">Scikit-learn</li>
-                    <li class="skill">Folium</li>
-                  </ul>
                 </div>
-              </a>
-            </li>
+                <h3 class="bento-title"
+                    data-es="Predicción Aterrizaje Falcon 9"
+                    data-en="Falcon 9 Landing Prediction">
+                  Predicción Aterrizaje Falcon 9
+                </h3>
+                <ul class="bento-skills">
+                  <li>Scikit-learn</li><li>SQL</li><li>Folium</li>
+                </ul>
+              </div>
+            </a>
+          </article>
 
-          </ul>
+        </div>
+      </div>
+    </section>
 
-        </section>
 
-      </article>
+    <!-- ===================== SOBRE MÍ ===================== -->
+    <section class="section section-alt" id="sobre-mi">
+      <div class="container">
 
-      <!--
-        - #CONTACT
-      -->
-      <article class="contact glass" data-page="contacto">
+        <div class="section-header" data-reveal>
+          <h2 class="section-title"
+              data-es="Sobre mí" data-en="About me">Sobre mí</h2>
+        </div>
 
-        <header data-reveal="up">
-          <h2 class="h2 article-title">Contacto</h2>
-        </header>
+        <div class="about-grid">
 
-        <!-- Map -->
-        <section class="mapbox" data-mapbox data-reveal="up">
-          <figure>
-            <iframe
-              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d115903.57678175328!2d-65.51303085716647!3d-24.795906395718053!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x941bc3a35151b7f9%3A0xa5cd992cd587f206!2sSalta%2C%20Salta%20Province!5e0!3m2!1sen!2sar!4v1728917968018!5m2!1sen!2sar"
-              width="600" height="450" allowfullscreen="" loading="lazy"
-              referrerpolicy="no-referrer-when-downgrade" title="Ubicación en Salta, Argentina"></iframe>
-          </figure>
-        </section>
+          <!-- Texto -->
+          <div class="about-text" data-reveal>
+            <p data-es="👋 Soy Abraham, Científico de Datos especializado en Python y Machine Learning. Me apasiona transformar datos complejos en soluciones predictivas que generen impacto real."
+               data-en="👋 I'm Abraham, a Data Scientist specialized in Python and Machine Learning. I'm passionate about transforming complex data into predictive solutions that create real impact.">
+              👋 Soy Abraham, Científico de Datos especializado en Python y Machine Learning.
+              Me apasiona transformar datos complejos en soluciones predictivas que generen impacto real.
+            </p>
+            <p data-es="Actualmente lidero dos proyectos innovadores: un sistema de monitorización del Alzheimer con datos multimodales, y un motor de microcréditos inclusivo que democratiza el acceso financiero para trabajadores informales."
+               data-en="I currently lead two innovative projects: an Alzheimer monitoring system with multimodal data, and an inclusive micro-lending engine that democratizes financial access for informal workers.">
+              Actualmente lidero dos proyectos innovadores: un sistema de monitorización del Alzheimer
+              con datos multimodales, y un motor de microcréditos inclusivo que democratiza el acceso
+              financiero para trabajadores informales.
+            </p>
+            <p data-es="Busco una oportunidad donde mis habilidades en análisis predictivo, ML y visualización de datos resuelvan desafíos reales con impacto social."
+               data-en="I'm looking for an opportunity where my skills in predictive analytics, ML, and data visualization solve real challenges with social impact.">
+              Busco una oportunidad donde mis habilidades en análisis predictivo, ML y visualización
+              de datos resuelvan desafíos reales con impacto social.
+            </p>
+          </div>
 
-        <!-- Contact Form -->
-        <section class="contact-form" data-reveal="up">
-          <h3 class="h3 form-title">Formulario de Contacto</h3>
-          
-          <form action="{{ url_for('submit_form') }}" method="POST" class="form" data-form>
-            <input type="text" name="honeypot" style="display: none;" tabindex="-1" autocomplete="off">
-            
-            <div class="input-wrapper">
-              <input type="text" name="name" class="form-input" placeholder="Nombre completo" required data-form-input aria-label="Nombre completo">
-              <input type="email" name="email" class="form-input" placeholder="Dirección de email" required data-form-input aria-label="Email">
+          <!-- Skills -->
+          <div class="skills-grid" data-reveal>
+
+            <h3 class="skills-heading"
+                data-es="Habilidades Técnicas" data-en="Technical Skills">Habilidades Técnicas</h3>
+
+            <div class="skills-list">
+              <div class="skill-item">
+                <img src="./assets/images/python.png" alt="Python" loading="lazy">
+                <span>Python</span>
+                <span class="skill-years">3+ años</span>
+              </div>
+              <div class="skill-item">
+                <img src="./assets/images/servidor-sql.png" alt="SQL" loading="lazy">
+                <span>SQL</span>
+                <span class="skill-years">3+ años</span>
+              </div>
+              <div class="skill-item">
+                <img src="./assets/images/ml.png" alt="Machine Learning" loading="lazy">
+                <span>Machine Learning</span>
+                <span class="skill-years">2+ años</span>
+              </div>
+              <div class="skill-item">
+                <img src="./assets/images/data-visualization.png" alt="Visualización" loading="lazy">
+                <span data-es="Visualización de Datos" data-en="Data Visualization">Visualización de Datos</span>
+                <span class="skill-years">2+ años</span>
+              </div>
+              <div class="skill-item">
+                <img src="./assets/images/feature.png" alt="Feature Engineering" loading="lazy">
+                <span>Feature Engineering</span>
+                <span class="skill-years">2+ años</span>
+              </div>
+              <div class="skill-item">
+                <img src="./assets/images/gen-ai.png" alt="IA Generativa" loading="lazy">
+                <span data-es="IA Generativa" data-en="Generative AI">IA Generativa</span>
+                <span class="skill-years">1+ año</span>
+              </div>
+              <div class="skill-item">
+                <img src="./assets/images/cloud-service.png" alt="Cloud" loading="lazy">
+                <span>Cloud Computing</span>
+                <span class="skill-years">1+ año</span>
+              </div>
+              <div class="skill-item">
+                <img src="./assets/images/estadisticas.png" alt="Estadística" loading="lazy">
+                <span data-es="Estadística" data-en="Statistics">Estadística</span>
+                <span class="skill-years">3+ años</span>
+              </div>
+              <div class="skill-item">
+                <img src="./assets/images/matematicas.png" alt="Matemáticas" loading="lazy">
+                <span data-es="Matemáticas" data-en="Mathematics">Matemáticas</span>
+                <span class="skill-years">4+ años</span>
+              </div>
+              <div class="skill-item">
+                <img src="./assets/images/web-scraper.png" alt="Web Scraping" loading="lazy">
+                <span>Web Scraping</span>
+                <span class="skill-years">2+ años</span>
+              </div>
             </div>
-            
-            <input type="tel" name="phone" class="form-input" placeholder="Número de celular (7-15 dígitos)" pattern="[0-9]{7,15}" required data-form-input aria-label="Teléfono">
-            
-            <select name="city" id="ciudad" class="form-select" required onchange="mostrarOtraCiudad(this)" aria-label="Ciudad">
-              <option value="" disabled selected>Seleccione una ciudad</option>
-              {% for ciudad in ciudades %}
-              <option value="{{ ciudad.id }}">{{ ciudad.nombre_ciudad }}</option>
-              {% endfor %}
-              <option value="otra">Otra (Especificar)</option>
-            </select>
-            
-            <input type="text" name="otherCity" id="otra_ciudad" class="form-input" placeholder="Ingrese su ciudad" style="display: none;" aria-label="Otra ciudad">
-            
-            <textarea name="message" class="form-input" placeholder="Tu mensaje" required data-form-input aria-label="Mensaje"></textarea>
-            
-            <select name="reason" class="form-select" required aria-label="Motivo de contacto">
-              <option value="" disabled selected>Motivo de contacto</option>
-              <option value="job-proposal">Propuesta Laboral</option>
-              <option value="collaboration">Colaboración</option>
-              <option value="consultation">Consulta</option>
-              <option value="other">Otro</option>
-            </select>
-            
-            <input type="url" name="linkedin" class="form-input" placeholder="LinkedIn o sitio web (opcional)" data-form-input aria-label="LinkedIn o web">
-            
-            <div id="form-message" class="form-message" role="alert" aria-live="polite"></div>
 
-            <button class="form-btn" type="submit" disabled data-form-btn data-magnetic>
-              <ion-icon name="paper-plane"></ion-icon>
-              <span>Enviar Mensaje</span>
-            </button>
-          </form>
-        </section>
+          </div>
+        </div>
+      </div>
+    </section>
 
-      </article>
 
-    </div>
+    <!-- ===================== RESUMEN ===================== -->
+    <section class="section" id="resumen">
+      <div class="container">
+
+        <div class="section-header" data-reveal>
+          <h2 class="section-title"
+              data-es="Resumen" data-en="Resume">Resumen</h2>
+        </div>
+
+        <div class="timeline-wrap" data-reveal>
+
+          <div class="timeline-item">
+            <div class="timeline-dot"></div>
+            <div class="timeline-content">
+              <span class="timeline-date">2024 — 2025</span>
+              <h3 class="timeline-title"
+                  data-es="Certificado Profesional de Ciencia de Datos — IBM"
+                  data-en="Professional Data Science Certificate — IBM">
+                Certificado Profesional de Ciencia de Datos — IBM
+              </h3>
+              <p class="timeline-desc"
+                 data-es="Especialización en análisis de datos, Machine Learning, Python, SQL, Pandas, Web Scraping y visualización con Matplotlib, Seaborn y Plotly."
+                 data-en="Specialization in data analysis, Machine Learning, Python, SQL, Pandas, Web Scraping, and visualization with Matplotlib, Seaborn, and Plotly.">
+                Especialización en análisis de datos, Machine Learning, Python, SQL, Pandas,
+                Web Scraping y visualización con Matplotlib, Seaborn y Plotly.
+              </p>
+            </div>
+          </div>
+
+          <div class="timeline-item">
+            <div class="timeline-dot"></div>
+            <div class="timeline-content">
+              <span class="timeline-date">2022 — 2024</span>
+              <h3 class="timeline-title"
+                  data-es="Universidad Nacional de Salta"
+                  data-en="National University of Salta">
+                Universidad Nacional de Salta
+              </h3>
+              <p class="timeline-desc"
+                 data-es="Programación con C y Java, algoritmos, estructuras de datos y matemáticas aplicadas."
+                 data-en="Programming with C and Java, algorithms, data structures, and applied mathematics.">
+                Programación con C y Java, algoritmos, estructuras de datos y matemáticas aplicadas.
+              </p>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+
+    <!-- ===================== CONTACTO ===================== -->
+    <section class="section section-alt" id="contacto">
+      <div class="container">
+
+        <div class="section-header" data-reveal>
+          <h2 class="section-title"
+              data-es="Contacto" data-en="Contact">Contacto</h2>
+          <p class="section-subtitle"
+             data-es="¿Tenés una propuesta laboral, una colaboración o simplemente querés conectar?"
+             data-en="Do you have a job offer, a collaboration, or just want to connect?">
+            ¿Tenés una propuesta laboral, una colaboración o simplemente querés conectar?
+          </p>
+        </div>
+
+        <div class="contact-grid" data-reveal>
+
+          <!-- Info -->
+          <div class="contact-info-block">
+            <div class="contact-info-item">
+              <div class="ci-icon"><ion-icon name="location-outline"></ion-icon></div>
+              <div>
+                <p class="ci-label" data-es="Ubicación" data-en="Location">Ubicación</p>
+                <p class="ci-value">Salta, Argentina</p>
+              </div>
+            </div>
+            <div class="contact-info-item">
+              <div class="ci-icon"><ion-icon name="mail-outline"></ion-icon></div>
+              <div>
+                <p class="ci-label">Email</p>
+                <a href="mailto:abrahamrtartalos@gmail.com" class="ci-value ci-link">
+                  abrahamrtartalos@gmail.com
+                </a>
+              </div>
+            </div>
+            <div class="contact-info-item">
+              <div class="ci-icon"><ion-icon name="phone-portrait-outline"></ion-icon></div>
+              <div>
+                <p class="ci-label" data-es="Teléfono" data-en="Phone">Teléfono</p>
+                <a href="#" class="ci-value ci-link" id="phone-link"
+                   data-es="Ver número" data-en="Show number">Ver número</a>
+              </div>
+            </div>
+            <div class="contact-info-item">
+              <div class="ci-icon"><ion-icon name="document-text-outline"></ion-icon></div>
+              <div>
+                <p class="ci-label">CV</p>
+                <a href="{{ url_for('static', filename='cv/abraham-tartalos-cv_es.pdf') }}"
+                   download class="ci-value ci-link"
+                   data-es="Descargar PDF" data-en="Download PDF">Descargar PDF</a>
+              </div>
+            </div>
+          </div>
+
+          <!-- Formulario -->
+          <div class="contact-form-wrap">
+            <form action="{{ url_for('submit_form') }}" method="POST"
+                  class="form" data-form novalidate>
+
+              <input type="text" name="honeypot"
+                     style="display:none;" tabindex="-1" autocomplete="off">
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label" data-es="Nombre completo" data-en="Full name">Nombre completo</label>
+                  <input type="text" name="name" class="form-input" required
+                         data-form-input
+                         placeholder="Tu nombre"
+                         data-placeholder-es="Tu nombre"
+                         data-placeholder-en="Your name">
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Email</label>
+                  <input type="email" name="email" class="form-input" required
+                         data-form-input
+                         placeholder="tu@email.com">
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label" data-es="Teléfono" data-en="Phone">Teléfono</label>
+                  <input type="tel" name="phone" class="form-input" required
+                         data-form-input
+                         placeholder="Tu número"
+                         data-placeholder-es="Tu número"
+                         data-placeholder-en="Your number"
+                         pattern="[0-9]{7,15}">
+                </div>
+                <div class="form-group">
+                  <label class="form-label" data-es="Ciudad" data-en="City">Ciudad</label>
+                  <select name="city" id="ciudad" class="form-input form-select"
+                          required onchange="mostrarOtraCiudad(this)">
+                    <option value="" disabled selected
+                            data-es="Seleccioná tu ciudad" data-en="Select your city">Seleccioná tu ciudad</option>
+                    {% for ciudad in ciudades %}
+                    <option value="{{ ciudad.id }}">{{ ciudad.nombre_ciudad }}</option>
+                    {% endfor %}
+                    <option value="otra" data-es="Otra" data-en="Other">Otra</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="form-group" id="otra_ciudad_wrap" style="display:none;">
+                <label class="form-label" data-es="Especificá tu ciudad" data-en="Specify your city">Especificá tu ciudad</label>
+                <input type="text" name="otherCity" id="otra_ciudad" class="form-input"
+                       placeholder="Tu ciudad"
+                       data-placeholder-es="Tu ciudad"
+                       data-placeholder-en="Your city">
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" data-es="Motivo de contacto" data-en="Reason">Motivo de contacto</label>
+                <select name="reason" class="form-input form-select" required>
+                  <option value="" disabled selected>—</option>
+                  <option value="job-proposal" data-es="Propuesta Laboral" data-en="Job Proposal">Propuesta Laboral</option>
+                  <option value="collaboration" data-es="Colaboración" data-en="Collaboration">Colaboración</option>
+                  <option value="consultation" data-es="Consulta" data-en="Consultation">Consulta</option>
+                  <option value="other" data-es="Otro" data-en="Other">Otro</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" data-es="Mensaje" data-en="Message">Mensaje</label>
+                <textarea name="message" class="form-input" required data-form-input
+                          rows="4"
+                          placeholder="Tu mensaje"
+                          data-placeholder-es="Tu mensaje"
+                          data-placeholder-en="Your message"></textarea>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">
+                  LinkedIn / Web
+                  <span class="form-optional"
+                        data-es="(opcional)" data-en="(optional)">(opcional)</span>
+                </label>
+                <input type="text" name="linkedin" class="form-input" data-form-input
+                       placeholder="https://..."
+                       data-placeholder-es="https://..."
+                       data-placeholder-en="https://...">
+              </div>
+
+              <div id="form-message" class="form-message" role="alert" aria-live="polite"></div>
+
+              <button type="submit" class="btn btn-primary btn-full"
+                      disabled data-form-btn>
+                <ion-icon name="paper-plane-outline"></ion-icon>
+                <span data-es="Enviar mensaje" data-en="Send message">Enviar mensaje</span>
+              </button>
+
+            </form>
+          </div>
+
+        </div>
+      </div>
+    </section>
 
   </main>
 
-  <!--
-    - Language Toggle
-  -->
-  <div id="language-toggle" data-language-toggle>
-    <button class="language-button active" data-language-button aria-label="Español">ES</button>
-    <button class="language-button" data-language-button aria-label="English">EN</button>
-  </div>
 
-  <!--
-    - Custom Scripts
-  -->
+  <!-- ===================== FOOTER ===================== -->
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <p class="footer-copy"
+         data-es="© 2026 Abraham Tartalos · Hecho con datos y café."
+         data-en="© 2026 Abraham Tartalos · Built with data and coffee.">
+        © 2026 Abraham Tartalos · Hecho con datos y café.
+      </p>
+      <div class="footer-social">
+        <a href="https://www.linkedin.com/in/abrahamtartalos"
+           target="_blank" rel="noopener noreferrer" aria-label="LinkedIn">
+          <ion-icon name="logo-linkedin"></ion-icon>
+        </a>
+        <a href="https://github.com/AbrahamTartalos"
+           target="_blank" rel="noopener noreferrer" aria-label="GitHub">
+          <ion-icon name="logo-github"></ion-icon>
+        </a>
+        <a href="mailto:abrahamrtartalos@gmail.com" aria-label="Email">
+          <ion-icon name="mail-outline"></ion-icon>
+        </a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Scroll to top -->
+  <button class="scroll-top" id="scroll-top" aria-label="Volver al inicio">
+    <ion-icon name="arrow-up-outline"></ion-icon>
+  </button>
+
   <script src="{{ url_for('static', filename='js/script.js') }}"></script>
-  <script src="{{ url_for('static', filename='js/animations.js') }}"></script>
 
 </body>
-
 </html>
