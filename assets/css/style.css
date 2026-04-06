@@ -1122,3 +1122,37 @@ textarea.form-input { resize: vertical; min-height: 110px; }
 
 .scroll-top.visible { opacity: 1; visibility: visible; }
 .scroll-top:hover { background: var(--orange); color: var(--teal-deep); transform: translateY(-3px); }
+
+/* ===================== AUTOCOMPLETADO CIUDAD ===================== */
+
+.city-autocomplete { position: relative; }
+
+.city-suggestions {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  background: var(--surface-card);
+  border: 1px solid var(--teal-border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  z-index: 50;
+  box-shadow: var(--shadow-md);
+  display: none;
+}
+
+.city-suggestions.open { display: block; }
+
+.city-suggestions li {
+  padding: 10px 15px;
+  font-size: 14px;
+  color: var(--white-soft);
+  cursor: pointer;
+  transition: background var(--transition);
+}
+
+.city-suggestions li:hover,
+.city-suggestions li.active {
+  background: var(--teal-glow);
+  color: var(--orange);
+}

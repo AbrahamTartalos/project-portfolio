@@ -147,7 +147,7 @@
             </div>
             <!-- Badges flotantes -->
             <div class="avatar-badge badge-top"
-                 data-es="3+ años Python" data-en="3+ yrs Python">3+ años Python</div>
+                 data-es="2+ años Python" data-en="2+ yrs Python">2+ años Python</div>
             <div class="avatar-badge badge-bottom"
                  data-es="LightGBM · SHAP · MLflow" data-en="LightGBM · SHAP · MLflow">LightGBM · SHAP · MLflow</div>
           </div>
@@ -525,39 +525,37 @@
 
               <div class="form-row">
                 <div class="form-group">
-                  <label class="form-label" data-es="Teléfono" data-en="Phone">Teléfono</label>
-                  <input type="tel" name="phone" class="form-input" required
+                  <label class="form-label">
+                    <span data-es="Teléfono" data-en="Phone"> Teléfono </span>
+                    <span class="form-optional" data-es="(opcional)" data-en="(optional)">(opcional)</span>
+                  </label>
+                  <input type="tel" name="phone" class="form-input"
                          data-form-input
                          placeholder="Tu número"
                          data-placeholder-es="Tu número"
                          data-placeholder-en="Your number"
                          pattern="[0-9]{7,15}">
                 </div>
-                <div class="form-group">
-                  <label class="form-label" data-es="Ciudad" data-en="City">Ciudad</label>
-                  <select name="city" id="ciudad" class="form-input form-select"
-                          required onchange="mostrarOtraCiudad(this)">
-                    <option value="" disabled selected
-                            data-es="Seleccioná tu ciudad" data-en="Select your city">Seleccioná tu ciudad</option>
-                    {% for ciudad in ciudades %}
-                    <option value="{{ ciudad.id }}">{{ ciudad.nombre_ciudad }}</option>
-                    {% endfor %}
-                    <option value="otra" data-es="Otra" data-en="Other">Otra</option>
-                  </select>
+                <div class="form-group city-autocomplete">
+                  <label class="form-label">
+                    <span data-es="Ciudad" data-en="City">Ciudad</span>
+                    <span class="form-optional" data-es="(opcional)" data-en="(optional)">(opcional)</span>
+                  </label>
+                  <input type="text" name="ciudad" id="ciudad-input"
+                        class="form-input"
+                        placeholder="Escribí tu ciudad..."
+                        data-placeholder-es="Escribí tu ciudad..."
+                        data-placeholder-en="Type your city..."
+                        autocomplete="off">
+                  <ul class="city-suggestions" id="city-suggestions" role="listbox"></ul>
                 </div>
               </div>
-
-              <div class="form-group" id="otra_ciudad_wrap" style="display:none;">
-                <label class="form-label" data-es="Especificá tu ciudad" data-en="Specify your city">Especificá tu ciudad</label>
-                <input type="text" name="otherCity" id="otra_ciudad" class="form-input"
-                       placeholder="Tu ciudad"
-                       data-placeholder-es="Tu ciudad"
-                       data-placeholder-en="Your city">
-              </div>
-
               <div class="form-group">
-                <label class="form-label" data-es="Motivo de contacto" data-en="Reason">Motivo de contacto</label>
-                <select name="reason" class="form-input form-select" required>
+                <label class="form-label">
+                  <span data-es="Motivo de contacto" data-en="Reason">Motivo de contacto</span>
+                  <span class="form-optional" data-es="(opcional)" data-en="(optional)">(opcional)</span>
+                </label>
+                <select name="reason" class="form-input form-select">
                   <option value="" disabled selected>—</option>
                   <option value="job-proposal" data-es="Propuesta Laboral" data-en="Job Proposal">Propuesta Laboral</option>
                   <option value="collaboration" data-es="Colaboración" data-en="Collaboration">Colaboración</option>

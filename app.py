@@ -2,6 +2,7 @@ from flask import Flask, jsonify, render_template, request, session
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_talisman import Talisman
+from flask_mail import Mail, Message
 from dotenv import load_dotenv
 from flask_session import Session
 from flask_limiter import Limiter
@@ -9,8 +10,9 @@ import redis
 import os
 import hmac
 import re
-from models import db, Ciudad, Contacto, Respuesta
+from models import db, Contacto, Respuesta
 import logging
+import requests
 
 # ---------------------------------------------------------------------------
 # LOGGING
@@ -21,8 +23,6 @@ logging.basicConfig(level=logging.INFO)
 # VARIABLES DE ENTORNO
 # ---------------------------------------------------------------------------
 load_dotenv()
-
-SECRET_ADMIN_TOKEN = os.getenv("SECRET_ADMIN_TOKEN", "")
 
 # ---------------------------------------------------------------------------
 # APP FLASK
@@ -46,8 +46,8 @@ app.config['SECRET_KEY'] = _secret_key
 # FLASK-SESSION
 # ---------------------------------------------------------------------------
 app.config["SESSION_PERMANENT"] = False
-app.config["SESSION_USE_SIGNER"] = True   # Protege cookies de sesión
-app.config["SESSION_COOKIE_SECURE"] = True  # Solo HTTPS
+app.config["SESSION_USE_SIGNER"] = True
+app.config["SESSION_COOKIE_SECURE"] = True
 
 if os.getenv("FLASK_ENV") == "development":
     app.config["SESSION_TYPE"] = "filesystem"
@@ -56,6 +56,26 @@ else:
     app.config["SESSION_REDIS"] = redis.from_url(os.getenv("UPSTASH_REDIS_URL"))
 
 Session(app)
+
+# ---------------------------------------------------------------------------
+# FLASK-MAIL — notificación de nuevo contacto
+#
+# Variables a agregar en tu .env y en Render:
+#   MAIL_USERNAME=tu_cuenta@gmail.com
+#   MAIL_PASSWORD=xxxx xxxx xxxx xxxx   ← App Password de Google, NO tu contraseña normal
+#   MAIL_RECIPIENT=donde_querés_recibir@gmail.com  (puede ser la misma cuenta)
+#
+# Para generar el App Password de Google:
+#   myaccount.google.com → Seguridad → Verificación en 2 pasos → Contraseñas de aplicaciones
+# ---------------------------------------------------------------------------
+app.config["MAIL_SERVER"]         = "smtp.gmail.com"
+app.config["MAIL_PORT"]           = 587
+app.config["MAIL_USE_TLS"]        = True
+app.config["MAIL_USERNAME"]       = os.getenv("MAIL_USERNAME")
+app.config["MAIL_PASSWORD"]       = os.getenv("MAIL_PASSWORD")
+app.config["MAIL_DEFAULT_SENDER"] = os.getenv("MAIL_USERNAME")
+
+mail = Mail(app)
 
 # ---------------------------------------------------------------------------
 # SQLALCHEMY
@@ -79,10 +99,8 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 is_sqlite = DATABASE_URL.startswith("sqlite")
 if is_sqlite:
-    # SQLite local: sin pool ni SSL
     app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {}
 else:
-    # PostgreSQL / Supabase en producción
     app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
         "pool_size": 5,
         "max_overflow": 10,
@@ -104,7 +122,7 @@ def get_real_ip():
 
 
 def get_user_identifier():
-    """Clave de rate limiting: IP + session_id (evita llamadas innecesarias a la DB)."""
+    """Clave de rate limiting: IP + session_id."""
     try:
         user_id = session.get("user_id", "guest") if session.modified else "guest"
     except Exception:
@@ -171,14 +189,59 @@ def shutdown_session(exception=None):
 
 
 # ---------------------------------------------------------------------------
+# LÍMITES DE LONGITUD — coinciden exactamente con los de models.py
+# para evitar errores de truncado en la DB
+# ---------------------------------------------------------------------------
+FIELD_LIMITS = {
+    "nombre":             100,
+    "correo_electronico": 120,
+    "numero_telefono":     20,
+    "mensaje":           2000,
+    "linkedin_o_web":     255,
+}
+
+
+# ---------------------------------------------------------------------------
 # RUTAS
 # ---------------------------------------------------------------------------
 
 @app.route('/')
 def index():
-    ciudades = Ciudad.query.all()
-    return render_template('index.html', ciudades=ciudades, SECRET_ADMIN_TOKEN=SECRET_ADMIN_TOKEN)
+    return render_template('index.html')
 
+@app.route('/ciudades')
+def ciudades():
+    """
+    Autocompletado de ciudades usando la API pública de GeoNames.
+    No requiere API key. Devuelve hasta 5 sugerencias para el texto ingresado.
+    Ejemplo: /ciudades?q=buen
+    """
+    q = request.args.get('q', '').strip()
+    if len(q) < 2:
+        return jsonify([])
+
+    try:
+        resp = requests.get(
+            'http://api.geonames.org/searchJSON',
+            params={
+                'q':          q,
+                'maxRows':    5,
+                'featureClass': 'P',       # solo ciudades/poblaciones
+                'orderby':    'population', # las más grandes primero
+                'username':   os.getenv('GEONAMES_USERNAME', 'demo'),
+                'lang':       'es',
+            },
+            timeout=4,
+        )
+        data = resp.json()
+        sugerencias = [
+            f"{g['name']}, {g.get('countryName', '')}"
+            for g in data.get('geonames', [])
+        ]
+        return jsonify(sugerencias)
+    except Exception as e:
+        app.logger.error(f"Error en /ciudades: {str(e)}")
+        return jsonify([])
 
 @app.route('/submit_form', methods=['POST'])
 @limiter.limit(default_limit)
@@ -190,29 +253,53 @@ def submit_form():
         if not data:
             return jsonify({"status": "error", "message": "Datos no proporcionados"}), 400
 
-        nombre            = data.get("name", "").strip()
+        nombre             = data.get("name", "").strip()
         correo_electronico = data.get("correo_electronico", "").strip()
-        numero_telefono   = data.get("numero_telefono", "").strip()
-        ciudad_id         = data.get("ciudad_id", "").strip()
-        otra_ciudad       = data.get("otra_ciudad", "").strip()
-        mensaje           = data.get("mensaje", "").strip()
-        motivo_contacto   = data.get("motivo_contacto", "").strip()
-        linkedin_o_web    = data.get("linkedin_o_web", "").strip() or None
-        honeypot          = data.get("honeypot", "").strip()
+        numero_telefono    = data.get("numero_telefono", "").strip()
+        ciudad             = data.get("ciudad", "").strip() or None
+        mensaje            = data.get("mensaje", "").strip()
+        motivo_contacto    = data.get("motivo_contacto", "").strip()
+        linkedin_o_web     = data.get("linkedin_o_web", "").strip() or None
+        honeypot           = data.get("honeypot", "").strip()
 
-        # Honeypot — responde como éxito para no revelar la detección
+        # log silencioso del intento de spam para auditoría.
+        # Responde 200 para no revelar al bot que fue detectado,
+        # pero queda registrado en los logs de Render con la IP.
         if honeypot:
+            app.logger.warning(f"Intento de spam bloqueado — IP: {get_real_ip()}")
             return jsonify({"status": "success", "message": "¡Envío exitoso!"}), 200
 
+        #  validación de longitud máxima de campos.
+        # Se verifica antes de cualquier otra validación para cortar
+        # payloads maliciosos lo antes posible.
+        longitud_invalida = (
+            len(nombre)               > FIELD_LIMITS["nombre"]             or
+            len(correo_electronico)   > FIELD_LIMITS["correo_electronico"] or
+            len(numero_telefono)      > FIELD_LIMITS["numero_telefono"]    or
+            len(mensaje)              > FIELD_LIMITS["mensaje"]            or
+            len(linkedin_o_web or "") > FIELD_LIMITS["linkedin_o_web"]
+        )
+        if longitud_invalida:
+            return jsonify({
+                "status": "error",
+                "message": "Uno o más campos superan la longitud máxima permitida.",
+            }), 400
+
         if not nombre or not correo_electronico or not mensaje:
-            return jsonify({"status": "error", "message": "Todos los campos obligatorios deben completarse."}), 400
+            return jsonify({
+                "status": "error",
+                "message": "Todos los campos obligatorios deben completarse.",
+            }), 400
 
         email_regex = r"(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)"
         if not re.match(email_regex, correo_electronico):
             return jsonify({"status": "error", "message": "Correo electrónico no válido."}), 400
 
         if numero_telefono and not numero_telefono.isdigit():
-            return jsonify({"status": "error", "message": "El número de teléfono debe contener solo números."}), 400
+            return jsonify({
+                "status": "error",
+                "message": "El número de teléfono debe contener solo números.",
+            }), 400
 
         if linkedin_o_web:
             url_regex = r'^https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)$'
@@ -222,23 +309,12 @@ def submit_form():
                     "message": "La URL de LinkedIn/web no es válida. Debe comenzar con http:// o https://",
                 }), 400
 
-        if ciudad_id == "otra":
-            if not otra_ciudad:
-                return jsonify({"status": "error", "message": "Debe especificar una ciudad."}), 400
-            ciudad_existente = Ciudad.query.filter_by(nombre_ciudad=otra_ciudad).first()
-            if ciudad_existente:
-                ciudad_id = ciudad_existente.id
-            else:
-                nueva_ciudad = Ciudad(nombre_ciudad=otra_ciudad)
-                db.session.add(nueva_ciudad)
-                db.session.flush()
-                ciudad_id = nueva_ciudad.id
 
         nuevo_contacto = Contacto(
             nombre=nombre,
             correo_electronico=correo_electronico,
             numero_telefono=numero_telefono,
-            ciudad_id=ciudad_id,
+            ciudad=ciudad,
             mensaje=mensaje,
             motivo_contacto=motivo_contacto,
             linkedin_o_web=linkedin_o_web,
@@ -249,13 +325,49 @@ def submit_form():
 
         app.logger.info(f"Contacto guardado — ID: {nuevo_contacto.id}")
 
+        # notificación por email después de guardar en la DB.
+        # Si el email falla, se loguea pero no interrumpe la respuesta
+        # al usuario — el contacto ya está seguro en la DB.
+        _enviar_notificacion(nombre, correo_electronico, motivo_contacto, mensaje)
+
         return jsonify({"status": "success", "message": "¡Envío exitoso!"}), 200
 
     except Exception as e:
         app.logger.error(f"Error en /submit_form: {str(e)}", exc_info=True)
         db.session.rollback()
-        # No se expone el detalle del error al cliente
-        return jsonify({"status": "error", "message": "Error interno. Por favor intentá de nuevo más tarde."}), 500
+        return jsonify({
+            "status": "error",
+            "message": "Error interno. Por favor intentá de nuevo más tarde.",
+        }), 500
+
+
+def _enviar_notificacion(nombre, correo, motivo, mensaje):
+    """
+    Envía un email de notificación cuando hay un nuevo contacto en el portfolio.
+    Si MAIL_RECIPIENT no está definido, usa MAIL_USERNAME como destinatario.
+    Si falla, solo loguea — no propaga la excepción.
+    """
+    destinatario = os.getenv("MAIL_RECIPIENT", os.getenv("MAIL_USERNAME"))
+    if not destinatario:
+        app.logger.warning("MAIL_RECIPIENT no configurado — notificación omitida.")
+        return
+
+    try:
+        msg = Message(
+            subject=f"Portfolio | Nuevo contacto de {nombre}",
+            recipients=[destinatario],
+        )
+        msg.body = (
+            f"Nuevo mensaje recibido en el portfolio.\n\n"
+            f"Nombre:  {nombre}\n"
+            f"Email:   {correo}\n"
+            f"Motivo:  {motivo or '—'}\n\n"
+            f"Mensaje:\n{mensaje}"
+        )
+        mail.send(msg)
+        app.logger.info(f"Notificación enviada a {destinatario}")
+    except Exception as e:
+        app.logger.error(f"Error al enviar notificación: {str(e)}", exc_info=True)
 
 
 # ---------------------------------------------------------------------------

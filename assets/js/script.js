@@ -371,6 +371,101 @@ function fixMobileSelects() {
 
 
 /* ============================================================
+   CITY AUTOCOMPLETE
+   ============================================================ */
+
+class CityAutocomplete {
+  constructor() {
+    this.input       = $('#ciudad-input');
+    this.list        = $('#city-suggestions');
+    this.selected    = null;
+    this.activeIndex = -1;
+    this.debounceTimer = null;
+    if (this.input) this.init();
+  }
+
+  init() {
+    this.input.addEventListener('input', () => {
+      clearTimeout(this.debounceTimer);
+      this.debounceTimer = setTimeout(() => this.fetch(), 300);
+    });
+
+    this.input.addEventListener('keydown', (e) => this.handleKeys(e));
+
+    // Cierra el dropdown al hacer clic fuera
+    document.addEventListener('click', (e) => {
+      if (!e.target.closest('.city-autocomplete')) this.close();
+    });
+  }
+
+  async fetch() {
+    const q = this.input.value.trim();
+    if (q.length < 2) { this.close(); return; }
+
+    try {
+      const res  = await fetch(`/ciudades?q=${encodeURIComponent(q)}`);
+      const data = await res.json();
+      this.render(data);
+    } catch {
+      this.close();
+    }
+  }
+
+  render(sugerencias) {
+    this.list.innerHTML = '';
+    this.activeIndex = -1;
+
+    if (!sugerencias.length) { this.close(); return; }
+
+    sugerencias.forEach((s, i) => {
+      const li = document.createElement('li');
+      li.textContent = s;
+      li.setAttribute('role', 'option');
+      li.addEventListener('click', () => this.select(s));
+      this.list.appendChild(li);
+    });
+
+    this.list.classList.add('open');
+  }
+
+  select(valor) {
+    this.input.value = valor;
+    this.selected    = valor;
+    this.close();
+  }
+
+  close() {
+    this.list.classList.remove('open');
+    this.list.innerHTML = '';
+    this.activeIndex = -1;
+  }
+
+  handleKeys(e) {
+    const items = this.list.querySelectorAll('li');
+    if (!items.length) return;
+
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      this.activeIndex = Math.min(this.activeIndex + 1, items.length - 1);
+      this.updateActive(items);
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      this.activeIndex = Math.max(this.activeIndex - 1, 0);
+      this.updateActive(items);
+    } else if (e.key === 'Enter' && this.activeIndex >= 0) {
+      e.preventDefault();
+      this.select(items[this.activeIndex].textContent);
+    } else if (e.key === 'Escape') {
+      this.close();
+    }
+  }
+
+  updateActive(items) {
+    items.forEach((li, i) => li.classList.toggle('active', i === this.activeIndex));
+  }
+}
+
+/* ============================================================
    INIT
    ============================================================ */
 
@@ -384,6 +479,7 @@ function initApp() {
   new LanguageManager();
   new FormManager();
   new PhoneManager();
+  new CityAutocomplete();
   fixMobileSelects();
   console.log('Portfolio v2 iniciado ✓');
 }
