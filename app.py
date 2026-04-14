@@ -59,14 +59,6 @@ Session(app)
 
 # ---------------------------------------------------------------------------
 # FLASK-MAIL — notificación de nuevo contacto
-#
-# Variables a agregar en tu .env y en Render:
-#   MAIL_USERNAME=tu_cuenta@gmail.com
-#   MAIL_PASSWORD=xxxx xxxx xxxx xxxx   ← App Password de Google, NO tu contraseña normal
-#   MAIL_RECIPIENT=donde_querés_recibir@gmail.com  (puede ser la misma cuenta)
-#
-# Para generar el App Password de Google:
-#   myaccount.google.com → Seguridad → Verificación en 2 pasos → Contraseñas de aplicaciones
 # ---------------------------------------------------------------------------
 app.config["MAIL_SERVER"]         = "smtp.gmail.com"
 app.config["MAIL_PORT"]           = 587

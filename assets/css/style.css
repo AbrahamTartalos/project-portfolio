@@ -449,7 +449,7 @@ input, textarea { user-select: text; caret-color: auto !important; }
 
 .hero-title {
   font-family: var(--font-display);
-  font-size: clamp(32px, 6vw, 58px);
+  font-size: clamp(28px, 4.5vw, 46px);
   font-weight: 800;
   line-height: 1.1;
   color: var(--white);
@@ -511,6 +511,7 @@ input, textarea { user-select: text; caret-color: auto !important; }
   width: 260px;
   flex-shrink: 0;
   margin-inline: auto;
+  align-self: center;
 }
 
 @media (min-width: 768px) { .hero-avatar-wrap { width: 300px; } }
