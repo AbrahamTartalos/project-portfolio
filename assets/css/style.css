@@ -221,6 +221,12 @@ input, textarea { user-select: text; caret-color: auto !important; }
   border: 2px solid var(--teal-border);
 }
 
+.nav-logo {
+  width: 36px;
+  height: 36px;
+  object-fit: contain;
+}
+
 .nav-name {
   font-family: var(--font-display);
   font-size: 15px;
